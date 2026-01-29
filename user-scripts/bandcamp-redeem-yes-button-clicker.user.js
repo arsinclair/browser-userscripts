@@ -2,8 +2,9 @@
 // @name        Bandcamp Redeem Yes Button Clicker
 // @namespace   https://bandcamp.com
 // @match       https://bandcamp.com/add_to_collection*
+// @run-at      document-start
 // @grant       none
-// @version     1.0.2
+// @version     1.0.3
 // @author      Raman Sinclair
 // @description 17/11/2024, 20:36:51
 // @updateURL  https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/bandcamp-redeem-yes-button-clicker.user.js
