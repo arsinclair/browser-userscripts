@@ -4,7 +4,7 @@
 // @match       *://getmusic.fm/*
 // @run-at      document-start
 // @grant       none
-// @version     1.0.4
+// @version     1.0.5
 // @author      Raman Sinclair
 // @description 17/11/2024, 20:36:51
 // @updateURL   https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/getmusic-redeem-button-transformer.user.js
@@ -34,6 +34,24 @@ const transformRedeemButtons = () => {
     });
 };
 
+const maybeBypassVoucherRedirect = () => {
+    if (!location.pathname.startsWith("/vouchers/")) return;
+
+    const directLink = document.querySelector("a[href*='bandcamp.com/yum?code=']");
+    if (directLink && directLink.href) {
+        location.replace(directLink.href);
+        return;
+    }
+
+    const refreshMeta = document.querySelector("meta[http-equiv='refresh']");
+    if (!refreshMeta) return;
+    const content = refreshMeta.getAttribute("content") || "";
+    const match = content.match(/url\s*=\s*(.+)$/i);
+    if (!match) return;
+    const targetUrl = match[1].trim();
+    if (targetUrl) location.replace(targetUrl);
+};
+
 let observer;
 let observingRoot;
 let scheduled = false;
@@ -58,6 +76,7 @@ const ensureObserver = () => {
 const startObserving = () => {
     ensureObserver();
     transformRedeemButtons();
+    maybeBypassVoucherRedirect();
 };
 
 const hookSpaNavigation = () => {
