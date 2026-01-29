@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name         Bandcamp Restyler
 @description  Refines Bandcamp’s UI with clean, subtle polish—currently adding a light border and padding to purchase list items, with plans to expand improvements across more site areas.
-@version      1.0.9
+@version      1.1.0
 @license      MIT
 @author       Raman Sinclair
 @namespace    https://github.com/arsinclair/browser-userscripts
@@ -44,7 +44,46 @@
         padding: 6px;
     }
 
+    .tralbum-about,
+    .tralbum-credits {
+        position: relative;
+    }
+
+    .tralbum-about::before,
+    .tralbum-credits::before,
+    p#bio-text::before {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--bc-restyler-text-color, #3a3a3a);
+        opacity: 0.85;
+        background: rgba(255, 255, 255, 0.7);
+        border-bottom: 1px solid var(--bc-restyler-border-color, #f3f3f354);
+        border-radius: 4px 4px 0 0;
+        padding: 6px;
+        margin: -6px -6px 6px -6px;
+    }
+
+    .tralbum-about::before {
+        content: "About Album";
+    }
+
+    .tralbum-credits::before {
+        content: "Credits";
+    }
+
+    p#bio-text::before {
+        content: "Bio";
+    }
+
     p#bio-text {
         padding: 3px;
+    }
+
+    p#bio-text::before {
+        padding: 3px;
+        margin: -3px -3px 6px -3px;
     }
 }
