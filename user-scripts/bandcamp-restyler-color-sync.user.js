@@ -43,11 +43,11 @@
     const extractPgBdColors = () => {
         const styleTag = document.querySelector("#custom-design-rules-style");
         if (!styleTag || !styleTag.textContent) return null;
-        const match = styleTag.textContent.match(/#pgBd\\s*\\{[^}]*\\}/i);
+        const match = styleTag.textContent.match(/#pgBd\s*\{[\s\S]*?\}/i);
         if (!match) return null;
         const block = match[0];
-        const colorMatch = block.match(/color\\s*:\\s*(#[0-9a-f]{3,8})\\s*;/i);
-        const bgMatch = block.match(/background\\s*:\\s*(#[0-9a-f]{3,8})\\s*;/i);
+        const colorMatch = block.match(/color\s*:\s*(#[0-9a-f]{3,8})/i);
+        const bgMatch = block.match(/background\s*:\s*(#[0-9a-f]{3,8})/i);
         return {
             text: colorMatch ? normalizeHex(colorMatch[1]) : null,
             bg: bgMatch ? normalizeHex(bgMatch[1]) : null,
