@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name        Bandcamp Redeem Yes Button Clicker
-// @namespace   https://bandcamp.com
+// @namespace   https://github.com/arsinclair/browser-userscripts
 // @match       https://bandcamp.com/add_to_collection*
 // @run-at      document-start
 // @grant       none
-// @version     1.0.3
+// @version     1.0.4
 // @author      Raman Sinclair
 // @description 17/11/2024, 20:36:51
 // @updateURL  https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/bandcamp-redeem-yes-button-clicker.user.js
+// @downloadURL https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/bandcamp-redeem-yes-button-clicker.user.js
 // ==/UserScript==
 
 const findYesButton = (root = document) => {
