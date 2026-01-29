@@ -11,8 +11,18 @@
 ==/UserStyle== */
 
 @-moz-document domain("bandcamp.com") {
-    li.buyItem {
+    /* Highlight Purchase Sections */
+    .tralbumCommands li.buyItem {
         border: 1px solid #f3f3f354;
         padding: 6px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Highlight artist Bio */
+    .signed-out-artists-bio-text {
+        border: 1px solid #f3f3f354;
+        border-radius: 4px;
+        padding: 3px;
+        background: rgba(255, 255, 255, 0.06);
     }
 }
