@@ -4,7 +4,7 @@
 // @match       *://getmusic.fm/*
 // @run-at      document-start
 // @grant       none
-// @version     1.0.2
+// @version     1.0.4
 // @author      Raman Sinclair
 // @description 17/11/2024, 20:36:51
 // @updateURL   https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/getmusic-redeem-button-transformer.user.js
@@ -34,8 +34,74 @@ const transformRedeemButtons = () => {
     });
 };
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", transformRedeemButtons, { once: true });
-} else {
+let observer;
+let observingRoot;
+let scheduled = false;
+
+const ensureObserver = () => {
+    const root = document.body || document.documentElement;
+    if (!root) return;
+    if (observer && observingRoot === root) return;
+    if (observer) observer.disconnect();
+    observingRoot = root;
+    observer = new MutationObserver(() => {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => {
+            scheduled = false;
+            transformRedeemButtons();
+        });
+    });
+    observer.observe(root, { childList: true, subtree: true });
+};
+
+const startObserving = () => {
+    ensureObserver();
     transformRedeemButtons();
+};
+
+const hookSpaNavigation = () => {
+    const handleNav = () => {
+        requestAnimationFrame(() => {
+            startObserving();
+        });
+    };
+
+    const originalPushState = history.pushState;
+    history.pushState = function (...args) {
+        const result = originalPushState.apply(this, args);
+        handleNav();
+        return result;
+    };
+
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function (...args) {
+        const result = originalReplaceState.apply(this, args);
+        handleNav();
+        return result;
+    };
+
+    window.addEventListener("popstate", handleNav);
+    window.addEventListener("pageshow", (e) => {
+        if (e.persisted) startObserving();
+    });
+    document.addEventListener("turbo:load", () => {
+        startObserving();
+    });
+    document.addEventListener("turbo:render", () => {
+        startObserving();
+    });
+    document.addEventListener("turbo:frame-load", () => {
+        startObserving();
+    });
+};
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        startObserving();
+        hookSpaNavigation();
+    }, { once: true });
+} else {
+    startObserving();
+    hookSpaNavigation();
 }
