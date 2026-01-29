@@ -7,3 +7,7 @@ A curated collection of user scripts and user styles for various websites, focus
 - Bandcamp Restyler — https://github.com/arsinclair/browser-userscripts/raw/master/user-styles/bandcamp-restyler.user.css
 - Bandcamp Bio Untruncate — https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/bandcamp-bio-untruncate.user.js
 - Bandcamp Redeem Yes Button Clicker — https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/bandcamp-redeem-yes-button-clicker.user.js
+
+## getmusic.fm
+
+- getmusic.fm Auto-redeemer — https://github.com/arsinclair/browser-userscripts/raw/master/user-scripts/getmusic-redeem-button-transformer.user.js
