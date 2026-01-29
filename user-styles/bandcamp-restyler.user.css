@@ -1,0 +1,18 @@
+/* ==UserStyle==
+@name         Bandcamp Restyler
+@description  Refines Bandcamp’s UI with clean, subtle polish—currently adding a light border and padding to purchase list items, with plans to expand improvements across more site areas.
+@version      1.0.1
+@license      MIT
+@author       Raman Sinclair
+@namespace    https://bandcamp.com/
+@preprocessor stylus
+@downloadURL  https://github.com/arsinclair/browser-userscripts/raw/main/user-styles/bandcamp-restyler.user.css
+@updateURL    https://github.com/arsinclair/browser-userscripts/raw/main/user-styles/bandcamp-restyler.user.css
+==/UserStyle== */
+
+@-moz-document domain("bandcamp.com") {
+    li.buyItem {
+        border: 1px solid #f3f3f354;
+        padding: 6px;
+    }
+}
