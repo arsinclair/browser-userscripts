@@ -4,4 +4,4 @@ A curated collection of user scripts and user styles for various websites, focus
 
 ## User Styles
 
-- Bandcamp Restyler — https://github.com/arsinclair/browser-userscripts/raw/main/user-styles/bandcamp-restyler.user.css
+- Bandcamp Restyler — https://github.com/arsinclair/browser-userscripts/raw/master/user-styles/bandcamp-restyler.user.css
