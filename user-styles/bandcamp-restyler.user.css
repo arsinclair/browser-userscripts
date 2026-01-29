@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name         Bandcamp Restyler
 @description  Refines Bandcamp’s UI with clean, subtle polish—currently adding a light border and padding to purchase list items, with plans to expand improvements across more site areas.
-@version      1.0.7
+@version      1.0.8
 @license      MIT
 @author       Raman Sinclair
 @namespace    https://github.com/arsinclair/browser-userscripts
@@ -13,14 +13,25 @@
     /* Roboto font faces (kept in separate file for Stylus) */
     @import "bandcamp-restyler-fonts.css";
 
+    :root {
+        --bc-restyler-text-color: #3a3a3a;
+        --bc-restyler-border-color: #f3f3f354;
+        --bc-restyler-gradient-start: rgba(255, 255, 255, 0.14);
+        --bc-restyler-gradient-end: rgba(255, 255, 255, 0.06);
+    }
+
     /* Highlight Sections */
     .tralbumCommands li.buyItem,
     .tralbum-credits,
     p#bio-text {
         font-family: 'Open Sans', Arial, system-ui, sans-serif;
-        border: 1px solid #f3f3f354;
+        border: 1px solid var(--bc-restyler-border-color, #f3f3f354);
         padding: 6px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+        background: linear-gradient(
+            180deg,
+            var(--bc-restyler-gradient-start, rgba(255, 255, 255, 0.14)),
+            var(--bc-restyler-gradient-end, rgba(255, 255, 255, 0.06))
+        );
         border-radius: 4px;
     }
 
