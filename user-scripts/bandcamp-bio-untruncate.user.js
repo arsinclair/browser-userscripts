@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Bio Untruncate
 // @description  Expands artist bios by removing Bandcamp's truncation controls.
-// @version      1.0.0
+// @version      1.0.1
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://bandcamp.com/
@@ -24,11 +24,17 @@
         const ellipses = bio.querySelectorAll(".bcTruncateEllipsis, .peekaboo-ellipsis");
         ellipses.forEach((node) => node.remove());
 
-        const moreLinks = bio.querySelectorAll(".peekaboo-link, .peekaboo-text + span > a");
-        moreLinks.forEach((node) => {
-            const container = node.closest(".peekaboo-link") || node;
-            container.remove();
+        const linkSpans = bio.querySelectorAll("span > a");
+        linkSpans.forEach((link) => {
+            const text = link.textContent ? link.textContent.trim().toLowerCase() : "";
+            if (text === "more" || text === "less") {
+                const container = link.closest("span") || link;
+                container.remove();
+            }
         });
+
+        const peekabooLinks = bio.querySelectorAll(".peekaboo-link");
+        peekabooLinks.forEach((node) => node.remove());
     };
 
     expandBio();

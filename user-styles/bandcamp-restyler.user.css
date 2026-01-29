@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name         Bandcamp Restyler
 @description  Refines Bandcamp’s UI with clean, subtle polish—currently adding a light border and padding to purchase list items, with plans to expand improvements across more site areas.
-@version      1.0.2
+@version      1.0.3
 @license      MIT
 @author       Raman Sinclair
 @namespace    https://bandcamp.com/
@@ -11,17 +11,18 @@
 
 @-moz-document domain("bandcamp.com") {
     /* Highlight Purchase Sections */
-    .tralbumCommands li.buyItem {
+    .tralbumCommands li.buyItem, .tralbum-credits {
         border: 1px solid #f3f3f354;
         padding: 6px;
-        background: rgba(255, 255, 255, 0.06);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+        border-radius: 4px;
     }
 
     /* Highlight artist Bio */
-    .signed-out-artists-bio-text {
+    p#bio-text {
         border: 1px solid #f3f3f354;
         border-radius: 4px;
         padding: 3px;
-        background: rgba(255, 255, 255, 0.06);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
     }
 }
