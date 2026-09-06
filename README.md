@@ -36,3 +36,10 @@ Opens redemption links directly in Bandcamp and bypasses voucher redirects.
 
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/getmusic-redeem-button-transformer/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/getmusic-redeem-button-transformer.user.js)
+
+## <a name="navidrome_musicbrainz_links"></a> Navidrome MusicBrainz Release Links
+
+Shows external links from a MusicBrainz release on Navidrome album pages.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/navidrome-musicbrainz-links/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js)

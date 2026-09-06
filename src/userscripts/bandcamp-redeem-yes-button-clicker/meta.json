@@ -6,11 +6,7 @@
     "namespace": "https://github.com/arsinclair/browser-userscripts",
     "downloadURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js",
     "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js",
-    "match": [
-        "https://bandcamp.com/add_to_collection*"
-    ],
-    "grant": [
-        "none"
-    ],
+    "match": ["https://bandcamp.com/add_to_collection*"],
+    "grant": ["none"],
     "runAt": "document-start"
 }
