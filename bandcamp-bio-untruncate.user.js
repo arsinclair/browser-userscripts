@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Bio Untruncate
-// @description  Expands artist bios by removing Bandcamp’s truncation controls.
-// @version      1.0.3
+// @description  Shows full Bandcamp artist bios by removing truncation and More/Less controls.
+// @version      2026.09.06.1
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts

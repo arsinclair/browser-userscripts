@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Restyler Color Sync
-// @description  Syncs Bandcamp Restyler CSS variables with the active page text/background colors.
-// @version      1.0.1
+// @description  Syncs Bandcamp Restyler’s colors with each page’s custom text and background colors.
+// @version      2026.09.06.1
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
