@@ -99,3 +99,4 @@ jobs:
             done
           else
             echo "The dist branch was already up to date." >> "$GITHUB_STEP_SUMMARY"
+          fi
