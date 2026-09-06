@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Discography Pruner
 // @description  Persistently hides selected releases from Bandcamp discography pages.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @author       
 // @namespace    https://github.com/arsinclair/browser-userscripts
 // @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-discography-pruner.user.js
@@ -10,7 +10,8 @@
 // @match        https://*.bandcamp.com/music*
 // @grant        none
 // @run-at       document-start
-// @icon         https://s4.bcbits.com/img/favicon/favicon-32x32.png
+// @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
+// @tag          arsinclair
 // ==/UserScript==
 
 (function () {

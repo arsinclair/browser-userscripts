@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Bio Untruncate
 // @description  Shows full Bandcamp artist bios by removing truncation and More/Less controls.
-// @version      2026.09.06.2
+// @version      2026.09.06.3
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -10,6 +10,8 @@
 // @match        https://bandcamp.com/*
 // @match        https://*.bandcamp.com/*
 // @run-at       document-idle
+// @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
+// @tag          arsinclair
 // ==/UserScript==
 
 (function () {

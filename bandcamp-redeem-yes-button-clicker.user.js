@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Redeem Yes Button Clicker
 // @description  Automatically confirms Bandcamp redemption prompts by clicking “Yes”.
-// @version      2026.09.06.2
+// @version      2026.09.06.3
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
 // @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js
@@ -9,6 +9,8 @@
 // @match        https://bandcamp.com/add_to_collection*
 // @grant        none
 // @run-at       document-start
+// @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
+// @tag          arsinclair
 // ==/UserScript==
 
 (function () {
