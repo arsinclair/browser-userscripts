@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MusicBrainz: Release Add Enhancements
 // @description  Autofills supported labels and catalog numbers, normalizes brackets with Guess Case, and collapses similar release-group suggestions.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -26,10 +26,6 @@
       }));
     }
 
-    const POLL_INTERVAL_MS = 500;
-    function annotationText() {
-      return document.querySelector("#annotation")?.value;
-    }
     function executePattern(pattern, value) {
       pattern.lastIndex = 0;
       return pattern.exec(value);
@@ -76,22 +72,16 @@
       };
     }
     function initLabelAutofill(options) {
+      const annotationInput = document.querySelector("#annotation");
+      if (!annotationInput) {
+        return;
+      }
       let addedLabel;
-      let pollInterval;
-      const annotationInputListener = event => {
-        if (event.target instanceof HTMLTextAreaElement && event.target.id === "annotation") {
-          update();
-        }
-      };
       const stopWatching = () => {
-        document.removeEventListener("input", annotationInputListener, true);
-        if (pollInterval !== undefined) {
-          window.clearInterval(pollInterval);
-          pollInterval = undefined;
-        }
+        annotationInput.removeEventListener("input", update);
       };
       const update = () => {
-        const annotation = annotationText();
+        const annotation = annotationInput.value;
         if (!annotation || !executePattern(options.annotationPattern, annotation)) {
           return;
         }
@@ -110,8 +100,7 @@
         }
         stopWatching();
       };
-      document.addEventListener("input", annotationInputListener, true);
-      pollInterval = window.setInterval(update, POLL_INTERVAL_MS);
+      annotationInput.addEventListener("input", update);
       update();
     }
 
