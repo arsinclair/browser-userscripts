@@ -1,0 +1,15 @@
+{
+    "name": "Tidal: Restore Ctrl+F + Selection + Disable Drag",
+    "description": "Prevents Tidal from hijacking Ctrl+F/Cmd+F, re-enables selection, and disables element dragging so text can be selected.",
+    "version": "2026.09.06.1",
+    "license": "MIT",
+    "author": "Raman Sinclair",
+    "namespace": "https://github.com/arsinclair/browser-userscripts",
+    "downloadURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/tidal-restore-find-and-selection.user.js",
+    "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/tidal-restore-find-and-selection.user.js",
+    "match": ["https://tidal.com/album/*/credits*"],
+    "grant": ["none"],
+    "runAt": "document-start",
+    "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
+    "tag": ["arsinclair"]
+}

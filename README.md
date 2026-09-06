@@ -78,3 +78,10 @@ Navigate Phonocake with the left and right keyboard arrows.
 
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/phonocake-arrow-navigation/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/phonocake-arrow-navigation.user.js)
+
+## <a name="tidal_restore_find_and_selection"></a> Tidal: Restore Ctrl+F + Selection + Disable Drag
+
+Prevents Tidal from hijacking Ctrl+F/Cmd+F, re-enables text selection, and disables element dragging on album credit pages.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/tidal-restore-find-and-selection/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/tidal-restore-find-and-selection.user.js)
