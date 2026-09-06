@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Redeem Yes Button Clicker
 // @description  Automatically confirms Bandcamp redemption prompts by clicking “Yes”.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
 // @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js
@@ -30,6 +30,7 @@
       observer?.disconnect();
     }
     document.addEventListener("DOMContentLoaded", () => {
+      // Wait for the asynchronous prompt and disconnect after the one required click.
       const observer = new MutationObserver(() => clickRedeemButton(observer));
       observer.observe(document.body, {
         childList: true,

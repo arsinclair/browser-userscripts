@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Bio Untruncate
 // @description  Shows full Bandcamp artist bios by removing truncation and More/Less controls.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -37,6 +37,8 @@
       peekabooLinks.forEach(node => node.remove());
     };
     expandBio();
+
+    // Inspect only added subtrees because Bandcamp can replace the bio asynchronously.
     const observer = new MutationObserver(mutations => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {

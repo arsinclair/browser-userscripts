@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navidrome MusicBrainz Release Links
 // @description  Shows a MusicBrainz release's external URL relationships on Navidrome album pages.
-// @version      2026.09.06.2
+// @version      2026.09.06.3
 // @author       
 // @namespace    https://github.com/arsinclair/browser-userscripts
 // @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js
@@ -352,6 +352,8 @@
           scan();
         });
       };
+
+      // Watch subtree and href changes for client-side navigation, coalescing related scans.
       new MutationObserver(scheduleScan).observe(document.body, {
         attributeFilter: ["href"],
         attributes: true,

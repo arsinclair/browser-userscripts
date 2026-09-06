@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bandcamp Restyler Color Sync
 // @description  Syncs Bandcamp Restyler’s colors with each page’s custom text and background colors.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -71,6 +71,7 @@
       return Boolean(text || bg);
     };
     const attachObserver = pgBd => {
+      // Watch only the #pgBd attributes that Bandcamp uses to change its page palette.
       const observer = new MutationObserver(() => {
         applyFromPgBd(pgBd);
       });
@@ -88,6 +89,8 @@
     };
     const boot = () => {
       if (init()) return;
+
+      // Wait for #pgBd, then replace this broad observer with the persistent attribute observer.
       const observer = new MutationObserver(() => {
         if (init()) observer.disconnect();
       });
