@@ -1,6 +1,6 @@
 {
     "name": "Bandcamp Redeem Yes Button Clicker",
-    "description": "Automatically clicks the “Yes” button on Bandcamp’s redeem page to save you a click.",
+    "description": "Automatically confirms Bandcamp redemption prompts by clicking “Yes”.",
     "version": "1.0.4",
     "author": "Raman Sinclair",
     "namespace": "https://github.com/arsinclair/browser-userscripts",

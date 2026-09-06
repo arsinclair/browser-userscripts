@@ -1,6 +1,6 @@
 {
     "name": "Bandcamp Restyler Color Sync",
-    "description": "Syncs Bandcamp Restyler CSS variables with the active page text/background colors.",
+    "description": "Syncs Bandcamp Restyler’s colors with each page’s custom text and background colors.",
     "version": "1.0.1",
     "license": "MIT",
     "author": "Raman Sinclair",

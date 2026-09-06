@@ -1,6 +1,6 @@
 {
     "name": "getmusic.fm Auto-redeemer",
-    "description": "17/11/2024, 20:36:51",
+    "description": "Opens getmusic.fm redemption links directly in Bandcamp and bypasses voucher redirects.",
     "version": "1.0.5",
     "author": "Raman Sinclair",
     "namespace": "https://github.com/arsinclair/browser-userscripts",

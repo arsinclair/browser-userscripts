@@ -1,6 +1,6 @@
 {
     "name": "Bandcamp Bio Untruncate",
-    "description": "Expands artist bios by removing Bandcamp’s truncation controls.",
+    "description": "Shows full Bandcamp artist bios by removing truncation and More/Less controls.",
     "version": "1.0.3",
     "license": "MIT",
     "author": "Raman Sinclair",
