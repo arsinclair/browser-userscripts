@@ -1,0 +1,43 @@
+{
+    "name": "browser-userscripts",
+    "version": "1.0.0",
+    "description": "A collection of browser userscripts and userstyles",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arsinclair/browser-userscripts.git"
+    },
+    "type": "module",
+    "scripts": {
+        "build": "node --strip-types src/build/build.ts",
+        "build:watch": "node --strip-types src/build/build.ts --watch",
+        "start": "pnpm run build:watch",
+        "bump-versions": "node --strip-types src/build/bump-versions-if-changed.ts",
+        "type-check": "tsc",
+        "format": "oxfmt",
+        "format:check": "oxfmt --check",
+        "lint": "oxlint --type-aware",
+        "check": "pnpm run format:check && pnpm run type-check && pnpm run lint && pnpm run build"
+    },
+    "devDependencies": {
+        "@babel/core": "^8.0.1",
+        "@babel/preset-env": "^8.0.1",
+        "@babel/preset-typescript": "^8.0.1",
+        "@rollup/plugin-alias": "^6.0.0",
+        "@rollup/plugin-babel": "^7.1.0",
+        "@rollup/plugin-commonjs": "^29.0.3",
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "@types/greasemonkey": "^4.0.7",
+        "@types/node": "^24.8.1",
+        "oxfmt": "^0.65.0",
+        "oxlint": "^1.70.0",
+        "oxlint-tsgolint": "^7.0.2001",
+        "rollup": "^4.62.0",
+        "typescript": "^7.0.2",
+        "zod": "^4.4.3"
+    },
+    "engines": {
+        "node": "24.x"
+    },
+    "packageManager": "pnpm@11.25.0"
+}
