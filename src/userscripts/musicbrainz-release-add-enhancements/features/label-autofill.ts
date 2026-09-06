@@ -1,7 +1,5 @@
 import { setInputValue } from "../utils/input";
 
-const POLL_INTERVAL_MS = 500;
-
 export interface LabelDefinition {
     id: string;
     names: readonly string[];
@@ -17,10 +15,6 @@ export interface LabelAutofillOptions {
 interface AddedLabel {
     catalogNumberInput: HTMLInputElement;
     row: HTMLTableRowElement;
-}
-
-function annotationText(): string | undefined {
-    return document.querySelector<HTMLTextAreaElement>("#annotation")?.value;
 }
 
 function executePattern(pattern: RegExp, value: string): RegExpExecArray | null {
@@ -82,25 +76,19 @@ function findLabel(options: LabelAutofillOptions): AddedLabel | undefined {
 }
 
 export function initLabelAutofill(options: LabelAutofillOptions): void {
-    let addedLabel: AddedLabel | undefined;
-    let pollInterval: number | undefined;
+    const annotationInput = document.querySelector<HTMLTextAreaElement>("#annotation");
+    if (!annotationInput) {
+        return;
+    }
 
-    const annotationInputListener = (event: Event): void => {
-        if (event.target instanceof HTMLTextAreaElement && event.target.id === "annotation") {
-            update();
-        }
-    };
+    let addedLabel: AddedLabel | undefined;
 
     const stopWatching = (): void => {
-        document.removeEventListener("input", annotationInputListener, true);
-        if (pollInterval !== undefined) {
-            window.clearInterval(pollInterval);
-            pollInterval = undefined;
-        }
+        annotationInput.removeEventListener("input", update);
     };
 
     const update = (): void => {
-        const annotation = annotationText();
+        const annotation = annotationInput.value;
         if (!annotation || !executePattern(options.annotationPattern, annotation)) {
             return;
         }
@@ -123,7 +111,6 @@ export function initLabelAutofill(options: LabelAutofillOptions): void {
         stopWatching();
     };
 
-    document.addEventListener("input", annotationInputListener, true);
-    pollInterval = window.setInterval(update, POLL_INTERVAL_MS);
+    annotationInput.addEventListener("input", update);
     update();
 }
