@@ -16,6 +16,13 @@ Syncs Bandcamp Restyler’s colors with each page’s custom text and background
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/bandcamp-restyler-color-sync/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-restyler-color-sync.user.js)
 
+## <a name="bandcamp_discography_pruner"></a> Bandcamp Discography Pruner
+
+Persistently hides selected releases from Bandcamp discography pages.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/bandcamp-discography-pruner/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-discography-pruner.user.js)
+
 ## <a name="bandcamp_bio_untruncate"></a> Bandcamp Bio Untruncate
 
 Shows full Bandcamp artist bios by removing truncation and More/Less controls.

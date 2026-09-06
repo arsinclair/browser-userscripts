@@ -23,7 +23,7 @@ const API_ROOT = "https://musicbrainz.org/ws/2/release";
 const BUSY_ERROR = "The MusicBrainz web server is currently busy. Please try again later.";
 const BUSY_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 16_000] as const;
 const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v1:";
-const CONTAINER_CLASS = "nt-mb-external-links";
+const CONTAINER_CLASS = "mb-external-links";
 const MUSICBRAINZ_RELEASE_PATTERN =
     /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
 const inFlightRequests = new Map<string, Promise<MusicBrainzReleaseResponse>>();
@@ -235,7 +235,7 @@ function createRelationLink(relation: ExternalRelation): HTMLAnchorElement {
     const link = document.createElement("a");
     const image = document.createElement("img");
 
-    link.className = "nt-mb-external-link";
+    link.className = "mb-external-link";
     link.href = relation.url.href;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
@@ -259,7 +259,7 @@ function renderRelations(container: HTMLElement, release: MusicBrainzReleaseResp
 function renderError(container: HTMLElement, releaseId: string, error: unknown): void {
     const retry = document.createElement("button");
     retry.type = "button";
-    retry.className = "nt-mb-retry";
+    retry.className = "mb-retry";
     retry.textContent = "!";
     retry.title = "Could not load MusicBrainz links. Click to retry.";
     retry.setAttribute("aria-label", "Retry loading MusicBrainz links");
@@ -342,7 +342,7 @@ function scan(): void {
 }
 
 function addStyles(): void {
-    if (document.querySelector("style[data-nt-mb-external-links]")) {
+    if (document.querySelector("style[data-mb-external-links]")) {
         return;
     }
 
@@ -362,8 +362,8 @@ function addStyles(): void {
             text-align: center;
             opacity: 0.6;
         }
-        .nt-mb-external-link,
-        .nt-mb-retry {
+        .mb-external-link,
+        .mb-retry {
             box-sizing: content-box;
             display: inline-flex;
             width: 18px;
@@ -379,19 +379,19 @@ function addStyles(): void {
             line-height: 18px;
             text-decoration: none;
         }
-        .nt-mb-external-link:hover,
-        .nt-mb-external-link:focus-visible,
-        .nt-mb-retry:hover,
-        .nt-mb-retry:focus-visible {
+        .mb-external-link:hover,
+        .mb-external-link:focus-visible,
+        .mb-retry:hover,
+        .mb-retry:focus-visible {
             background: rgba(128, 128, 128, 0.18);
         }
-        .nt-mb-external-link img {
+        .mb-external-link img {
             display: block;
             width: 18px;
             height: 18px;
             border-radius: 3px;
         }
-        .nt-mb-retry {
+        .mb-retry {
             font: 700 14px/18px sans-serif;
         }
     `;
