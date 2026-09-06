@@ -37,6 +37,13 @@ Automatically confirms Bandcamp redemption prompts by clicking “Yes”.
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/bandcamp-redeem-yes-button-clicker/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js)
 
+## <a name="dlcm_redeem_button_transformer"></a> DLCM Redeem Button Transformer
+
+Automatically generates a Bandcamp code on DLCM and opens its redemption link.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/dlcm-redeem-button-transformer/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/dlcm-redeem-button-transformer.user.js)
+
 ## <a name="getmusic_auto_redeemer"></a> getmusic.fm Auto-redeemer
 
 Opens redemption links directly in Bandcamp and bypasses voucher redirects.
