@@ -9,6 +9,13 @@ Adds polished borders, labels, and typography to Bandcamp purchase, album, credi
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/user-styles/bandcamp-restyler.user.css)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/master/user-styles/bandcamp-restyler.user.css)
 
+## <a name="bandcamp_purchase_dialog_autofill"></a> Bandcamp Auto-Fill Purchase Dialog
+
+Automatically fills the email address and postal code when a Bandcamp purchase dialog opens. Details are requested on first use, stored privately by the userscript manager, and can be changed from its script menu.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/bandcamp-purchase-dialog-autofill/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-purchase-dialog-autofill.user.js)
+
 ## <a name="bandcamp_restyler_color_sync"></a> Bandcamp Restyler Color Sync
 
 Syncs Bandcamp Restyler’s colors with each page’s custom text and background colors.
