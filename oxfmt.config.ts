@@ -12,7 +12,7 @@ export default defineConfig({
     endOfLine: "lf",
     insertFinalNewline: true,
     proseWrap: "preserve",
-    ignorePatterns: ["pnpm-lock.yaml", "user-scripts/**/*.user.js", "user-styles/**/*.css"],
+    ignorePatterns: ["pnpm-lock.yaml", "user-styles/**/*.css"],
     sortImports: true,
     overrides: [
         {
