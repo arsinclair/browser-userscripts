@@ -9,5 +9,6 @@
     "match": ["https://*.bandcamp.com/", "https://*.bandcamp.com/music*"],
     "grant": ["none"],
     "runAt": "document-start",
-    "icon": "https://s4.bcbits.com/img/favicon/favicon-32x32.png"
+    "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
+    "tag": ["arsinclair"]
 }

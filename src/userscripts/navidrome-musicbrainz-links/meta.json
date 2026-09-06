@@ -10,5 +10,6 @@
     "connect": ["musicbrainz.org"],
     "grant": ["GM_xmlhttpRequest"],
     "runAt": "document-idle",
-    "icon": "https://musicbrainz.org/static/images/favicons/favicon-32x32.png"
+    "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
+    "tag": ["arsinclair"]
 }

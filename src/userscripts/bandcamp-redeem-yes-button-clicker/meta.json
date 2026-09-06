@@ -8,5 +8,7 @@
     "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-redeem-yes-button-clicker.user.js",
     "match": ["https://bandcamp.com/add_to_collection*"],
     "grant": ["none"],
-    "runAt": "document-start"
+    "runAt": "document-start",
+    "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
+    "tag": ["arsinclair"]
 }

@@ -49,7 +49,8 @@ const MetadataSchema = z
         require: z.array(z.string()).optional(),
         grant: z.array(z.string()).optional(),
         runAt: z.string().optional(),
-        icon: z.string().optional()
+        icon: z.string(),
+        tag: z.array(z.string()).min(1)
     })
     .refine(data => (data.match && !data.include) || (!data.match && data.include), {
         message: "Either `match` or `include` must be provided, not both.",
@@ -168,9 +169,11 @@ function generateUserscriptHeader(metadata: UserscriptMetadata): string {
         lines.push(`@run-at       ${metadata.runAt}`);
     }
 
-    if (metadata.icon) {
-        lines.push(`@icon         ${metadata.icon}`);
-    }
+    lines.push(`@icon         ${metadata.icon}`);
+
+    metadata.tag.forEach(tag => {
+        lines.push(`@tag          ${tag}`);
+    });
 
     lines.push("==/UserScript==");
 
