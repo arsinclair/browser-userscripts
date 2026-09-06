@@ -1,36 +1,36 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
-import alias, { type Alias } from '@rollup/plugin-alias';
-import { babel, type RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
-import commonjs from '@rollup/plugin-commonjs';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { rollup } from 'rollup';
-import { z } from 'zod';
+import alias, { type Alias } from "@rollup/plugin-alias";
+import { babel, type RollupBabelInputPluginOptions } from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import { rollup } from "rollup";
+import { z } from "zod";
 
-const EXTENSIONS = ['.js', '.ts'];
-const SRC_DIR = './src/userscripts';
+const EXTENSIONS = [".js", ".ts"];
+const SRC_DIR = "./src/userscripts";
 
 const BABEL_OPTIONS = {
     babelrc: false,
     configFile: false,
-    babelHelpers: 'bundled',
-    exclude: 'node_modules/**',
-    include: ['**/*'],
+    babelHelpers: "bundled",
+    exclude: "node_modules/**",
+    include: ["**/*"],
     extensions: EXTENSIONS,
     targets: {
-        browsers: ['baseline 2024'],
+        browsers: ["baseline 2024"]
     },
     presets: [
         [
-            '@babel/preset-env',
+            "@babel/preset-env",
             {
                 // Rollup bundles modules; Babel only transpiles syntax for target browsers.
-                modules: false,
-            },
+                modules: false
+            }
         ],
-        '@babel/preset-typescript',
-    ],
+        "@babel/preset-typescript"
+    ]
 } satisfies RollupBabelInputPluginOptions;
 
 const MetadataSchema = z
@@ -38,6 +38,7 @@ const MetadataSchema = z
         name: z.string(),
         description: z.string(),
         version: z.string(),
+        license: z.string().optional(),
         author: z.string(),
         namespace: z.string(),
         downloadURL: z.string(),
@@ -48,11 +49,11 @@ const MetadataSchema = z
         require: z.array(z.string()).optional(),
         grant: z.array(z.string()).optional(),
         runAt: z.string().optional(),
-        icon: z.string().optional(),
+        icon: z.string().optional()
     })
     .refine(data => (data.match && !data.include) || (!data.match && data.include), {
-        message: 'Either `match` or `include` must be provided, not both.',
-        path: ['match', 'include'],
+        message: "Either `match` or `include` must be provided, not both.",
+        path: ["match", "include"]
     });
 type UserscriptMetadata = z.infer<typeof MetadataSchema>;
 
@@ -65,7 +66,7 @@ async function getUserscriptDirs(): Promise<string[]> {
 async function buildUserscript(userscriptName: string): Promise<void> {
     console.log(`Building ${userscriptName}`);
 
-    const inputPath = path.resolve(SRC_DIR, userscriptName, 'index.ts');
+    const inputPath = path.resolve(SRC_DIR, userscriptName, "index.ts");
 
     // Check if the input file exists
     try {
@@ -80,28 +81,28 @@ async function buildUserscript(userscriptName: string): Promise<void> {
             alias({
                 entries: [
                     {
-                        find: '~',
-                        replacement: path.resolve('./src'),
-                    },
-                ] satisfies Alias[],
+                        find: "~",
+                        replacement: path.resolve("./src")
+                    }
+                ] satisfies Alias[]
             }),
             nodeResolve({
-                extensions: EXTENSIONS,
+                extensions: EXTENSIONS
             }),
             commonjs(),
-            babel(BABEL_OPTIONS),
-        ],
+            babel(BABEL_OPTIONS)
+        ]
     });
 
     try {
         const { output } = await bundle.generate({
-            format: 'iife',
-            name: 'Userscript',
+            format: "iife",
+            name: "Userscript"
         });
 
         // Load metadata
-        const metadataPath = path.resolve(SRC_DIR, userscriptName, 'meta.json');
-        const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf8')) as unknown;
+        const metadataPath = path.resolve(SRC_DIR, userscriptName, "meta.json");
+        const metadata = JSON.parse(await fs.readFile(metadataPath, "utf8")) as unknown;
         const typedMetadata = MetadataSchema.parse(metadata);
 
         // Generate userscript header
@@ -111,9 +112,9 @@ async function buildUserscript(userscriptName: string): Promise<void> {
         const finalCode = `${header}\n\n${output[0].code}`;
 
         // Write the userscript file
-        const outputPath = path.resolve('./dist', `${userscriptName}.user.js`);
+        const outputPath = path.resolve("./dist", `${userscriptName}.user.js`);
         await fs.mkdir(path.dirname(outputPath), { recursive: true });
-        await fs.writeFile(outputPath, finalCode, 'utf8');
+        await fs.writeFile(outputPath, finalCode, "utf8");
     } finally {
         await bundle.close();
     }
@@ -122,11 +123,14 @@ async function buildUserscript(userscriptName: string): Promise<void> {
 }
 
 function generateUserscriptHeader(metadata: UserscriptMetadata): string {
-    const lines = ['==UserScript=='];
+    const lines = ["==UserScript=="];
 
     lines.push(`@name         ${metadata.name}`);
     lines.push(`@description  ${metadata.description}`);
     lines.push(`@version      ${metadata.version}`);
+    if (metadata.license) {
+        lines.push(`@license      ${metadata.license}`);
+    }
     lines.push(`@author       ${metadata.author}`);
     lines.push(`@namespace    ${metadata.namespace}`);
     lines.push(`@downloadURL  ${metadata.downloadURL}`);
@@ -168,9 +172,9 @@ function generateUserscriptHeader(metadata: UserscriptMetadata): string {
         lines.push(`@icon         ${metadata.icon}`);
     }
 
-    lines.push('==/UserScript==');
+    lines.push("==/UserScript==");
 
-    return lines.map(line => `// ${line}`).join('\n');
+    return lines.map(line => `// ${line}`).join("\n");
 }
 
 async function buildAll(): Promise<void> {
@@ -186,7 +190,7 @@ async function buildAll(): Promise<void> {
         await buildUserscript(userscriptName);
     }
 
-    console.log('Build completed successfully!');
+    console.log("Build completed successfully!");
 }
 
 async function watch(): Promise<void> {
@@ -205,7 +209,7 @@ async function watch(): Promise<void> {
         clearTimeout(pendingBuild);
         pendingBuild = setTimeout(() => {
             buildAll().catch((error: unknown) => {
-                console.error('Build failed:', error);
+                console.error("Build failed:", error);
             });
         }, 100);
     }
@@ -213,14 +217,14 @@ async function watch(): Promise<void> {
 
 async function main(): Promise<void> {
     try {
-        if (process.argv.includes('--watch')) {
+        if (process.argv.includes("--watch")) {
             await watch();
             return;
         }
 
         await buildAll();
     } catch (error) {
-        console.error('Build failed:', error);
+        console.error("Build failed:", error);
         process.exit(1);
     }
 }
