@@ -16,6 +16,11 @@ export function initMilieuMusicAutofill(): void {
         annotationPattern: /\bPsoma\s+Psi\s+Phi\b/iu,
         catalogNumberPattern: /\bPsoma\s+Psi\s+Phi\s+number\s+([^\s,.;:!?()[\]{}]+)/iu,
         defaultLabelId: "2c44071a-be42-4dba-9d76-f1ce5a11157e",
-        labels: [{ id: "2c44071a-be42-4dba-9d76-f1ce5a11157e", names: ["Psøma Psi Phi"] }]
+        labels: [
+            {
+                id: "2c44071a-be42-4dba-9d76-f1ce5a11157e",
+                names: ["Psøma Psi Phi", "Milieu Music Digital"]
+            }
+        ]
     });
 }
