@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Navidrome MusicBrainz Release Links
 // @description  Shows a MusicBrainz release's external URL relationships on Navidrome album pages.
-// @version      2026.09.06.1
+// @version      2026.09.06.2
 // @author       
-// @namespace    https://update.greasyfork.org/scripts/590798
-// @downloadURL  https://update.greasyfork.org/scripts/590798/navidrome-musicbrainz-links.user.js
-// @updateURL    https://update.greasyfork.org/scripts/590798/navidrome-musicbrainz-links.user.js
+// @namespace    https://github.com/arsinclair/browser-userscripts
+// @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js
+// @updateURL    https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js
 // @match        http://jrmnas.local:4533/app/*
 // @match        https://jrmnas.local:4533/app/*
 // @connect      musicbrainz.org
