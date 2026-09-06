@@ -1,0 +1,101 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DEPLOY_BRANCH: dist
+
+jobs:
+  build-and-deploy:
+    if: ${{ !contains(github.event.head_commit.message || '', '[skip ci]') }}
+    name: Build userscripts and deploy to dist branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: master
+
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: 'package.json'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm type-check
+
+      - run: pnpm build
+
+      - name: Bump versions for changed scripts
+        id: bump
+        run: pnpm bump-versions
+
+      - name: Rebuild after version bumps
+        if: steps.bump.outputs.changed == 'true'
+        run: pnpm build
+
+      - name: Commit version bumps to master
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/userscripts/*/meta.json
+          git commit -m "chore: bump userscript versions [skip ci]"
+          git push origin master
+
+      - name: Stage build output
+        run: |
+          mkdir -p /tmp/browser-userscripts-deploy
+          mkdir -p dist
+          find dist -maxdepth 1 -type f -name '*.user.js' -exec cp {} /tmp/browser-userscripts-deploy/ \;
+
+      - name: Publish clean build output
+        id: deploy
+        run: |
+          source_revision=$(git rev-parse --short master)
+          git fetch --depth=1 origin "${DEPLOY_BRANCH}:${DEPLOY_BRANCH}" || true
+
+          if git show-ref --verify --quiet "refs/heads/${DEPLOY_BRANCH}"; then
+            git checkout "${DEPLOY_BRANCH}"
+            git rm -rf --ignore-unmatch .
+            git clean -fdx
+          else
+            git checkout --orphan "${DEPLOY_BRANCH}"
+            git rm -rf --ignore-unmatch .
+          fi
+
+          cp -R /tmp/browser-userscripts-deploy/. .
+          printf '%s\n' '*' '!.gitignore' '!*.user.js' > .gitignore
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --staged --quiet; then
+            echo "deployed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit --no-verify -m "Deploy build from master ${source_revision}"
+            git push origin "${DEPLOY_BRANCH}"
+            echo "deployed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.deploy.outputs.deployed }}" = "true" ]; then
+            echo "### Published installable files" >> "$GITHUB_STEP_SUMMARY"
+            for file in *.user.js *.user.css; do
+              [ -f "$file" ] || continue
+              echo "- \`${file}\`" >> "$GITHUB_STEP_SUMMARY"
+            done
+          else
+            echo "The dist branch was already up to date." >> "$GITHUB_STEP_SUMMARY"
