@@ -52,6 +52,8 @@ function ensureObserver(): void {
     if (observer && observingRoot === root) return;
     observer?.disconnect();
     observingRoot = root;
+
+    // Watch dynamic redemption controls and coalesce full-page scans into animation frames.
     observer = new MutationObserver(() => {
         if (scheduled) return;
         scheduled = true;

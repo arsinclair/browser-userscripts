@@ -56,6 +56,7 @@ function scheduleScan(observer: MutationObserver): void {
     });
 }
 
+// Follow DLCM's asynchronous steps and disconnect after activating the final Redeem link.
 const observer = new MutationObserver(() => scheduleScan(observer));
 observer.observe(document.documentElement, {
     childList: true,

@@ -19,6 +19,7 @@ function clickRedeemButton(observer?: MutationObserver): void {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Wait for the asynchronous prompt and disconnect after the one required click.
     const observer = new MutationObserver(() => clickRedeemButton(observer));
 
     observer.observe(document.body, {

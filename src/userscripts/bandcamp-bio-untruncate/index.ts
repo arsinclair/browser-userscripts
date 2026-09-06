@@ -28,6 +28,7 @@ const expandBio = (root: ParentNode = document): void => {
 
 expandBio();
 
+// Inspect only added subtrees because Bandcamp can replace the bio asynchronously.
 const observer = new MutationObserver(mutations => {
     for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {

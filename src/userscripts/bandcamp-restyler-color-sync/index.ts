@@ -64,6 +64,7 @@ const applyFromPgBd = (pgBd: Element | null): boolean => {
 };
 
 const attachObserver = (pgBd: Element): void => {
+    // Watch only the #pgBd attributes that Bandcamp uses to change its page palette.
     const observer = new MutationObserver(() => {
         applyFromPgBd(pgBd);
     });
@@ -80,6 +81,8 @@ const init = (): boolean => {
 
 const boot = (): void => {
     if (init()) return;
+
+    // Wait for #pgBd, then replace this broad observer with the persistent attribute observer.
     const observer = new MutationObserver(() => {
         if (init()) observer.disconnect();
     });

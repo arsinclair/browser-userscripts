@@ -414,6 +414,7 @@ function init(): void {
         });
     };
 
+    // Watch subtree and href changes for client-side navigation, coalescing related scans.
     new MutationObserver(scheduleScan).observe(document.body, {
         attributeFilter: ["href"],
         attributes: true,
