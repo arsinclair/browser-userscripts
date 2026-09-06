@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MusicBrainz: Release Add Enhancements
 // @description  Autofills supported labels and catalog numbers, normalizes brackets with Guess Case, and collapses similar release-group suggestions.
-// @version      2026.09.06.3
+// @version      2026.09.06.4
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -365,7 +365,7 @@
         defaultLabelId: "2c44071a-be42-4dba-9d76-f1ce5a11157e",
         labels: [{
           id: "2c44071a-be42-4dba-9d76-f1ce5a11157e",
-          names: ["Psøma Psi Phi"]
+          names: ["Psøma Psi Phi", "Milieu Music Digital"]
         }]
       });
     }
