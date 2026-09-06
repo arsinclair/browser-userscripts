@@ -38,8 +38,8 @@ const MetadataSchema = z
         name: z.string(),
         description: z.string(),
         version: z.string(),
-        license: z.string().optional(),
-        author: z.string(),
+        license: z.string().trim().min(1),
+        author: z.string().trim().min(1),
         namespace: z.string(),
         downloadURL: z.string(),
         updateURL: z.string(),
@@ -129,9 +129,7 @@ function generateUserscriptHeader(metadata: UserscriptMetadata): string {
     lines.push(`@name         ${metadata.name}`);
     lines.push(`@description  ${metadata.description}`);
     lines.push(`@version      ${metadata.version}`);
-    if (metadata.license) {
-        lines.push(`@license      ${metadata.license}`);
-    }
+    lines.push(`@license      ${metadata.license}`);
     lines.push(`@author       ${metadata.author}`);
     lines.push(`@namespace    ${metadata.namespace}`);
     lines.push(`@downloadURL  ${metadata.downloadURL}`);
