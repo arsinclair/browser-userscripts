@@ -1,7 +1,7 @@
 {
     "name": "MusicBrainz: Release Add Enhancements",
     "description": "Autofills supported labels and catalog numbers, normalizes brackets with Guess Case, and collapses similar release-group suggestions.",
-    "version": "2026.09.06.2",
+    "version": "2026.09.06.3",
     "license": "MIT",
     "author": "Raman Sinclair",
     "namespace": "https://github.com/arsinclair/browser-userscripts",
