@@ -1,12 +1,15 @@
 {
     "name": "Bandcamp Restyler Color Sync",
     "description": "Syncs Bandcamp Restyler’s colors with each page’s custom text and background colors.",
-    "version": "1.0.1",
+    "version": "2026.09.06.1",
     "license": "MIT",
     "author": "Raman Sinclair",
     "namespace": "https://github.com/arsinclair/browser-userscripts",
     "downloadURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-restyler-color-sync.user.js",
     "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-restyler-color-sync.user.js",
-    "match": ["https://bandcamp.com/*", "https://*.bandcamp.com/*"],
+    "match": [
+        "https://bandcamp.com/*",
+        "https://*.bandcamp.com/*"
+    ],
     "runAt": "document-idle"
 }
