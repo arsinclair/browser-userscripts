@@ -65,3 +65,9 @@ declare function GM_openInTab(
         incognito?: boolean;
     }
 ): unknown;
+
+declare function GM_getValue<T>(name: string, defaultValue: T): T;
+
+declare function GM_setValue(name: string, value: string | number | boolean): void;
+
+declare function GM_registerMenuCommand(caption: string, commandFunc: () => void): unknown;

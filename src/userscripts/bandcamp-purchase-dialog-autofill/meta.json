@@ -1,0 +1,15 @@
+{
+    "name": "Bandcamp Auto-Fill Purchase Dialog",
+    "description": "Fills Bandcamp purchase dialogs using details stored privately by the userscript manager.",
+    "version": "2026.09.06.1",
+    "license": "MIT",
+    "author": "Raman Sinclair",
+    "namespace": "https://github.com/arsinclair/browser-userscripts",
+    "downloadURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-purchase-dialog-autofill.user.js",
+    "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/bandcamp-purchase-dialog-autofill.user.js",
+    "match": ["https://*.bandcamp.com/album/*", "https://*.bandcamp.com/track/*"],
+    "grant": ["GM_getValue", "GM_setValue", "GM_registerMenuCommand"],
+    "runAt": "document-idle",
+    "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
+    "tag": ["arsinclair"]
+}
