@@ -65,6 +65,13 @@ Adds shortcuts for increasing or decreasing a MusicBrainz release's data quality
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/musicbrainz-change-release-quality/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/musicbrainz-change-release-quality.user.js)
 
+## <a name="musicbrainz_release_add_enhancements"></a> MusicBrainz: Release Add Enhancements
+
+Streamlines release entry by autofilling supported labels and catalog numbers from annotations, converting square brackets to parentheses when using Guess Case, and collapsing similar release-group suggestions behind a count-aware toggle.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/musicbrainz-release-add-enhancements/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/musicbrainz-release-add-enhancements.user.js)
+
 ## <a name="navidrome_musicbrainz_links"></a> Navidrome MusicBrainz Release Links
 
 Shows external links from a MusicBrainz release on Navidrome album pages.
