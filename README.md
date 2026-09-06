@@ -71,3 +71,10 @@ Shows external links from a MusicBrainz release on Navidrome album pages.
 
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/navidrome-musicbrainz-links/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js)
+
+## <a name="phonocake_arrow_navigation"></a> Phonocake Arrow Navigation
+
+Navigate Phonocake with the left and right keyboard arrows.
+
+[![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/phonocake-arrow-navigation/index.ts)
+[![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/phonocake-arrow-navigation.user.js)
