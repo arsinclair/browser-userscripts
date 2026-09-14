@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MusicBrainz: Release Add Enhancements
 // @description  Autofills supported labels and catalog numbers, normalizes brackets with Guess Case, and collapses similar release-group suggestions.
-// @version      2026.09.06.4
+// @version      2026.09.14.1
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -366,6 +366,15 @@
         labels: [{
           id: "2c44071a-be42-4dba-9d76-f1ce5a11157e",
           names: ["Psøma Psi Phi", "Milieu Music Digital"]
+        }]
+      });
+      initLabelAutofill({
+        annotationPattern: /\bRecycled\s+Plastics\b/iu,
+        catalogNumberPattern: /\bRecycled\s+Plastics\s+number\s+([^\s,.;:!?()[\]{}]+)/iu,
+        defaultLabelId: "c962c928-0336-4cce-940c-bbbfb9f7b69f",
+        labels: [{
+          id: "c962c928-0336-4cce-940c-bbbfb9f7b69f",
+          names: ["Recycled Plastics", "Milieu Music Digital"]
         }]
       });
     }
