@@ -23,4 +23,15 @@ export function initMilieuMusicAutofill(): void {
             }
         ]
     });
+    initLabelAutofill({
+        annotationPattern: /\bRecycled\s+Plastics\b/iu,
+        catalogNumberPattern: /\bRecycled\s+Plastics\s+number\s+([^\s,.;:!?()[\]{}]+)/iu,
+        defaultLabelId: "c962c928-0336-4cce-940c-bbbfb9f7b69f",
+        labels: [
+            {
+                id: "c962c928-0336-4cce-940c-bbbfb9f7b69f",
+                names: ["Recycled Plastics", "Milieu Music Digital"]
+            }
+        ]
+    });
 }
