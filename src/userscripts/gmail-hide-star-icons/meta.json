@@ -1,7 +1,7 @@
 {
     "name": "Gmail: Hide Star Icons",
     "description": "Replaces Gmail's star icons with favicons from each sender's domain.",
-    "version": "2026.09.26.1",
+    "version": "2026.09.26.2",
     "license": "MIT",
     "author": "Raman Sinclair",
     "namespace": "https://github.com/arsinclair/browser-userscripts",
