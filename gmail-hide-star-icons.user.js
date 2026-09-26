@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gmail: Hide Star Icons
 // @description  Replaces Gmail's star icons with favicons from each sender's domain.
-// @version      2026.09.26.3
+// @version      2026.09.26.4
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -69,25 +69,26 @@
       const lastCandidateIndex = Math.max(0, labels.length - 2);
       return labels.slice(0, lastCandidateIndex + 1).map((_, index) => labels.slice(index).join("."));
     }
+    function isImageBlob(value) {
+      return value instanceof Blob && value.size > 0 && value.type.toLowerCase().startsWith("image/");
+    }
     function canLoadImage(url) {
       return new Promise(resolve => {
-        const image = new Image();
-        let settled = false;
-        const finish = loaded => {
-          if (settled) {
-            return;
-          }
-          settled = true;
-          clearTimeout(timeout);
-          image.onload = null;
-          image.onerror = null;
-          resolve(loaded);
-        };
-        const timeout = window.setTimeout(() => finish(false), IMAGE_LOAD_TIMEOUT_MS);
-        image.referrerPolicy = "no-referrer";
-        image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
-        image.onerror = () => finish(false);
-        image.src = url;
+        GM_xmlhttpRequest({
+          method: "GET",
+          url,
+          timeout: IMAGE_LOAD_TIMEOUT_MS,
+          responseType: "blob",
+          headers: {
+            Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+          },
+          onload: response => {
+            resolve(response.status >= 200 && response.status < 300 && isImageBlob(response.response));
+          },
+          onabort: () => resolve(false),
+          onerror: () => resolve(false),
+          ontimeout: () => resolve(false)
+        });
       });
     }
     function requestPage(url) {
@@ -115,9 +116,39 @@
         });
       });
     }
+    function decodeHtmlAttribute(value) {
+      return value.replace(/&(?:#(\d+)|#x([\da-f]+)|(amp|quot|apos|lt|gt));/gi, (_, decimal, hex, name) => {
+        if (decimal) {
+          return String.fromCodePoint(Number.parseInt(decimal, 10));
+        }
+        if (hex) {
+          return String.fromCodePoint(Number.parseInt(hex, 16));
+        }
+        const entities = {
+          amp: "&",
+          apos: "'",
+          gt: ">",
+          lt: "<",
+          quot: '"'
+        };
+        return entities[String(name).toLowerCase()] ?? "";
+      });
+    }
+    function getTagAttributes(tag) {
+      const source = tag.replace(/^<\s*[\w:-]+\s*/i, "").replace(/\/?>\s*$/, "");
+      const attributes = {};
+      const pattern = /([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+      for (const match of source.matchAll(pattern)) {
+        const name = match[1]?.toLowerCase();
+        if (name) {
+          attributes[name] = decodeHtmlAttribute(match[2] ?? match[3] ?? match[4] ?? "");
+        }
+      }
+      return attributes;
+    }
     function getDeclaredFaviconUrls(html, pageUrl) {
-      const page = new DOMParser().parseFromString(html, "text/html");
-      const baseHref = page.querySelector("base[href]")?.getAttribute("href");
+      const baseTag = html.match(/<base\b[^>]*>/i)?.[0];
+      const baseHref = baseTag ? getTagAttributes(baseTag)["href"] : undefined;
       let baseUrl = pageUrl;
       if (baseHref) {
         try {
@@ -126,13 +157,13 @@
           // Ignore an invalid base element and resolve icons against the page URL.
         }
       }
-      const links = [...page.querySelectorAll("link[href]")].filter(link => link.rel.toLowerCase().split(/\s+/).some(value => value === "icon" || value.endsWith("-icon"))).sort((left, right) => {
-        const is16By16 = link => link.sizes.value.toLowerCase().split(/\s+/).includes("16x16");
+      const links = [...html.matchAll(/<link\b[^>]*>/gi)].map(match => getTagAttributes(match[0])).filter(attributes => (attributes["rel"] ?? "").toLowerCase().split(/\s+/).some(value => value === "icon" || value.endsWith("-icon"))).sort((left, right) => {
+        const is16By16 = attributes => (attributes["sizes"] ?? "").toLowerCase().split(/\s+/).includes("16x16");
         return Number(is16By16(right)) - Number(is16By16(left));
       });
       const urls = new Set();
-      for (const link of links) {
-        const href = link.getAttribute("href");
+      for (const attributes of links) {
+        const href = attributes["href"];
         if (!href) {
           continue;
         }
