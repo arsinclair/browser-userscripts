@@ -8,6 +8,11 @@ const SENDER_SELECTOR = "span[email]";
 const CACHE_KEY = "gmail-hide-star-icons:favicons:v3";
 const CACHE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 const FAVICON_SERVICE_URL = "https://www.google.com/s2/favicons";
+const FAVICON_OVERRIDES: Readonly<Record<string, string>> = {
+    "bandcamp.com": "https://s4.bcbits.com/img/favicon/favicon-32x32.png",
+    "allegro.pl": "https://allegro.pl/favicon.ico",
+    "beehiiv.com": "https://beehiiv-marketing-images.s3.amazonaws.com/Redesign2023/favicon.png"
+};
 
 interface FaviconCacheEntry {
     expiresAt: number;
@@ -77,6 +82,15 @@ function getSenderDomain(row: HTMLTableRowElement): string | null {
 
 function getFaviconUrl(domain: string): string {
     const cached = faviconCache[domain];
+    const overrideUrl = getFaviconOverride(domain);
+
+    if (overrideUrl) {
+        if (cached?.url !== overrideUrl || cached.expiresAt <= Date.now()) {
+            cacheFavicon(domain, overrideUrl);
+        }
+
+        return overrideUrl;
+    }
 
     if (cached && cached.expiresAt > Date.now()) {
         return cached.url;
@@ -87,6 +101,20 @@ function getFaviconUrl(domain: string): string {
     url.searchParams.set("domain", domain);
     cacheFavicon(domain, url.href);
     return url.href;
+}
+
+function getFaviconOverride(domain: string): string | undefined {
+    const labels = domain.split(".");
+
+    for (let index = 0; index < labels.length - 1; index += 1) {
+        const url = FAVICON_OVERRIDES[labels.slice(index).join(".")];
+
+        if (url) {
+            return url;
+        }
+    }
+
+    return undefined;
 }
 
 function replaceStarIcons(root: ParentNode): void {
