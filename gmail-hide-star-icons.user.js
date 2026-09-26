@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name         Gmail: Hide Star Icons
 // @description  Replaces Gmail's star icons with favicons from each sender's domain.
-// @version      2026.09.26.2
+// @version      2026.09.26.3
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
 // @downloadURL  https://github.com/arsinclair/browser-userscripts/raw/dist/gmail-hide-star-icons.user.js
 // @updateURL    https://github.com/arsinclair/browser-userscripts/raw/dist/gmail-hide-star-icons.user.js
 // @match        https://mail.google.com/mail/*
-// @grant        none
+// @connect      *
+// @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
 // @tag          arsinclair
@@ -19,9 +20,10 @@
 
     const STAR_BUTTON_SELECTOR = ['span[role="button"][aria-label="Starred"]', 'span[role="button"][aria-label="Not starred"]', 'span[role="button"][aria-label^="Starred with "]'].join(", ");
     const SENDER_SELECTOR = "span[email]";
-    const CACHE_KEY = "gmail-hide-star-icons:favicons:v1";
+    const CACHE_KEY = "gmail-hide-star-icons:favicons:v2";
     const CACHE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
     const IMAGE_LOAD_TIMEOUT_MS = 8_000;
+    const PAGE_LOAD_TIMEOUT_MS = 10_000;
     const FAVICON_PATHS = ["/favicon.ico", "/favicon.png", "/favicon-16x16.png", "/apple-touch-icon.png"];
     const faviconCache = readFaviconCache();
     const faviconPromises = new Map();
@@ -88,6 +90,75 @@
         image.src = url;
       });
     }
+    function requestPage(url) {
+      return new Promise(resolve => {
+        GM_xmlhttpRequest({
+          method: "GET",
+          url,
+          timeout: PAGE_LOAD_TIMEOUT_MS,
+          headers: {
+            Accept: "text/html,application/xhtml+xml"
+          },
+          onload: response => {
+            if (response.status < 200 || response.status >= 300 || typeof response.responseText !== "string") {
+              resolve(null);
+              return;
+            }
+            resolve({
+              body: response.responseText,
+              finalUrl: response.finalUrl || url
+            });
+          },
+          onabort: () => resolve(null),
+          onerror: () => resolve(null),
+          ontimeout: () => resolve(null)
+        });
+      });
+    }
+    function getDeclaredFaviconUrls(html, pageUrl) {
+      const page = new DOMParser().parseFromString(html, "text/html");
+      const baseHref = page.querySelector("base[href]")?.getAttribute("href");
+      let baseUrl = pageUrl;
+      if (baseHref) {
+        try {
+          baseUrl = new URL(baseHref, pageUrl).href;
+        } catch {
+          // Ignore an invalid base element and resolve icons against the page URL.
+        }
+      }
+      const links = [...page.querySelectorAll("link[href]")].filter(link => link.rel.toLowerCase().split(/\s+/).some(value => value === "icon" || value.endsWith("-icon"))).sort((left, right) => {
+        const is16By16 = link => link.sizes.value.toLowerCase().split(/\s+/).includes("16x16");
+        return Number(is16By16(right)) - Number(is16By16(left));
+      });
+      const urls = new Set();
+      for (const link of links) {
+        const href = link.getAttribute("href");
+        if (!href) {
+          continue;
+        }
+        try {
+          const url = new URL(href, baseUrl);
+          if (url.protocol === "https:" || url.protocol === "http:") {
+            urls.add(url.href);
+          }
+        } catch {
+          // Ignore malformed icon URLs and continue with the remaining declarations.
+        }
+      }
+      return [...urls];
+    }
+    async function findDeclaredFavicon(domain) {
+      const page = await requestPage(`https://${domain}/`);
+      if (!page) {
+        return null;
+      }
+      for (const url of getDeclaredFaviconUrls(page.body, page.finalUrl)) {
+        if (await canLoadImage(url)) {
+          return url;
+        }
+      }
+      return null;
+    }
     async function findFaviconForDomain(domain) {
       const cached = faviconCache[domain];
       if (cached && cached.expiresAt > Date.now()) {
@@ -101,6 +172,11 @@
           cacheFavicon(domain, url);
           return url;
         }
+      }
+      const declaredUrl = await findDeclaredFavicon(domain);
+      if (declaredUrl) {
+        cacheFavicon(domain, declaredUrl);
+        return declaredUrl;
       }
       cacheFavicon(domain, null);
       return null;
