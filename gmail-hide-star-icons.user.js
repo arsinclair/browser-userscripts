@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gmail: Hide Star Icons
 // @description  Replaces Gmail's star icons with favicons from each sender's domain.
-// @version      2026.09.26.5
+// @version      2026.09.26.6
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -22,6 +22,11 @@
     const CACHE_KEY = "gmail-hide-star-icons:favicons:v3";
     const CACHE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
     const FAVICON_SERVICE_URL = "https://www.google.com/s2/favicons";
+    const FAVICON_OVERRIDES = {
+      "bandcamp.com": "https://s4.bcbits.com/img/favicon/favicon-32x32.png",
+      "allegro.pl": "https://allegro.pl/favicon.ico",
+      "beehiiv.com": "https://beehiiv-marketing-images.s3.amazonaws.com/Redesign2023/favicon.png"
+    };
     const faviconCache = readFaviconCache();
     function readFaviconCache() {
       try {
@@ -62,6 +67,13 @@
     }
     function getFaviconUrl(domain) {
       const cached = faviconCache[domain];
+      const overrideUrl = getFaviconOverride(domain);
+      if (overrideUrl) {
+        if (cached?.url !== overrideUrl || cached.expiresAt <= Date.now()) {
+          cacheFavicon(domain, overrideUrl);
+        }
+        return overrideUrl;
+      }
       if (cached && cached.expiresAt > Date.now()) {
         return cached.url;
       }
@@ -70,6 +82,16 @@
       url.searchParams.set("domain", domain);
       cacheFavicon(domain, url.href);
       return url.href;
+    }
+    function getFaviconOverride(domain) {
+      const labels = domain.split(".");
+      for (let index = 0; index < labels.length - 1; index += 1) {
+        const url = FAVICON_OVERRIDES[labels.slice(index).join(".")];
+        if (url) {
+          return url;
+        }
+      }
+      return undefined;
     }
     function replaceStarIcons(root) {
       const starButtons = root.querySelectorAll(STAR_BUTTON_SELECTOR);
