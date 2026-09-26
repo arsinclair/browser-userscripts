@@ -4,7 +4,7 @@ A curated collection of user scripts and user styles for various websites, focus
 
 ## <a name="gmail_hide_star_icons"></a> Gmail: Hide Star Icons
 
-Removes the star column from email rows across Gmail mailboxes and account views.
+Replaces the star column in Gmail mailboxes with favicons resolved from each sender's domain.
 
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/src/userscripts/gmail-hide-star-icons/index.ts)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/dist/gmail-hide-star-icons.user.js)

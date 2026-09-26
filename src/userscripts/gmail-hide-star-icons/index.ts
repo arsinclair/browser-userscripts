@@ -1,35 +1,232 @@
 const STAR_BUTTON_SELECTOR = [
     'span[role="button"][aria-label="Starred"]',
-    'span[role="button"][aria-label="Not starred"]'
+    'span[role="button"][aria-label="Not starred"]',
+    'span[role="button"][aria-label^="Starred with "]'
 ].join(", ");
 
-function removeStarCells(root: ParentNode): void {
+const SENDER_SELECTOR = "span[email]";
+const CACHE_KEY = "gmail-hide-star-icons:favicons:v1";
+const CACHE_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+const IMAGE_LOAD_TIMEOUT_MS = 8_000;
+
+const FAVICON_PATHS = [
+    "/favicon.ico",
+    "/favicon.png",
+    "/favicon-16x16.png",
+    "/apple-touch-icon.png"
+];
+
+interface FaviconCacheEntry {
+    expiresAt: number;
+    url: string | null;
+}
+
+const faviconCache = readFaviconCache();
+const faviconPromises = new Map<string, Promise<string | null>>();
+
+function readFaviconCache(): Record<string, FaviconCacheEntry> {
+    try {
+        const value: unknown = JSON.parse(localStorage.getItem(CACHE_KEY) ?? "{}");
+
+        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+            return {};
+        }
+
+        const now = Date.now();
+        return Object.fromEntries(
+            Object.entries(value).filter((entry): entry is [string, FaviconCacheEntry] => {
+                const cached = entry[1];
+                return (
+                    typeof cached === "object" &&
+                    cached !== null &&
+                    "expiresAt" in cached &&
+                    typeof cached.expiresAt === "number" &&
+                    cached.expiresAt > now &&
+                    "url" in cached &&
+                    (typeof cached.url === "string" || cached.url === null)
+                );
+            })
+        );
+    } catch {
+        return {};
+    }
+}
+
+function cacheFavicon(domain: string, url: string | null): void {
+    faviconCache[domain] = {
+        expiresAt: Date.now() + CACHE_TTL_MS,
+        url
+    };
+
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(faviconCache));
+    } catch {
+        // Gmail still gets favicons for this session if storage is unavailable or full.
+    }
+}
+
+function getSenderDomain(row: HTMLTableRowElement): string | null {
+    const email = row.querySelector<HTMLElement>(SENDER_SELECTOR)?.getAttribute("email")?.trim();
+    const atIndex = email?.lastIndexOf("@") ?? -1;
+
+    if (!email || atIndex < 0) {
+        return null;
+    }
+
+    const domain = email
+        .slice(atIndex + 1)
+        .toLowerCase()
+        .replace(/\.$/, "");
+    const labels = domain.split(".");
+    const isValid = labels.every(label => /^[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?$/i.test(label));
+
+    return isValid ? domain : null;
+}
+
+function getDomainCandidates(domain: string): string[] {
+    const labels = domain.split(".");
+    const lastCandidateIndex = Math.max(0, labels.length - 2);
+
+    return labels.slice(0, lastCandidateIndex + 1).map((_, index) => labels.slice(index).join("."));
+}
+
+function canLoadImage(url: string): Promise<boolean> {
+    return new Promise(resolve => {
+        const image = new Image();
+        let settled = false;
+
+        const finish = (loaded: boolean): void => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            clearTimeout(timeout);
+            image.onload = null;
+            image.onerror = null;
+            resolve(loaded);
+        };
+
+        const timeout = window.setTimeout(() => finish(false), IMAGE_LOAD_TIMEOUT_MS);
+        image.referrerPolicy = "no-referrer";
+        image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
+        image.onerror = () => finish(false);
+        image.src = url;
+    });
+}
+
+async function findFaviconForDomain(domain: string): Promise<string | null> {
+    const cached = faviconCache[domain];
+
+    if (cached && cached.expiresAt > Date.now()) {
+        if (cached.url === null || (await canLoadImage(cached.url))) {
+            return cached.url;
+        }
+    }
+
+    for (const path of FAVICON_PATHS) {
+        const url = `https://${domain}${path}`;
+
+        if (await canLoadImage(url)) {
+            cacheFavicon(domain, url);
+            return url;
+        }
+    }
+
+    cacheFavicon(domain, null);
+    return null;
+}
+
+function getFaviconForDomain(domain: string): Promise<string | null> {
+    const pending = faviconPromises.get(domain);
+
+    if (pending) {
+        return pending;
+    }
+
+    const promise = findFaviconForDomain(domain).finally(() => {
+        faviconPromises.delete(domain);
+    });
+    faviconPromises.set(domain, promise);
+    return promise;
+}
+
+async function resolveFavicon(domain: string): Promise<string | null> {
+    for (const candidate of getDomainCandidates(domain)) {
+        const url = await getFaviconForDomain(candidate);
+
+        if (url) {
+            if (candidate !== domain) {
+                cacheFavicon(domain, url);
+            }
+
+            return url;
+        }
+    }
+
+    return null;
+}
+
+function replaceStarIcons(root: ParentNode): void {
     const starButtons = root.querySelectorAll<HTMLElement>(STAR_BUTTON_SELECTOR);
 
     if (root instanceof HTMLElement && root.matches(STAR_BUTTON_SELECTOR)) {
-        removeStarCell(root);
+        replaceStarIcon(root);
     }
 
-    starButtons.forEach(removeStarCell);
+    starButtons.forEach(replaceStarIcon);
 }
 
-function removeStarCell(starButton: HTMLElement): void {
-    const cell = starButton.parentElement;
+function replaceStarIcon(starButton: HTMLElement): void {
+    const cell = starButton.closest("td");
+    const row = starButton.closest("tr");
 
-    if (cell instanceof HTMLTableCellElement && cell.tagName === "TD") {
-        cell.remove();
+    if (!(cell instanceof HTMLTableCellElement) || !(row instanceof HTMLTableRowElement)) {
+        return;
     }
+
+    const domain = getSenderDomain(row);
+    cell.replaceChildren();
+
+    if (!domain) {
+        return;
+    }
+
+    cell.dataset["senderFaviconDomain"] = domain;
+
+    void resolveFavicon(domain).then(url => {
+        if (
+            !url ||
+            !cell.isConnected ||
+            cell.dataset["senderFaviconDomain"] !== domain ||
+            getSenderDomain(row) !== domain
+        ) {
+            return;
+        }
+
+        const image = document.createElement("img");
+        image.src = url;
+        image.alt = "";
+        image.title = domain;
+        image.width = 16;
+        image.height = 16;
+        image.referrerPolicy = "no-referrer";
+        image.decoding = "async";
+        image.style.display = "block";
+        image.style.margin = "auto";
+        cell.replaceChildren(image);
+    });
 }
 
 const observer = new MutationObserver(mutations => {
     for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
             if (node instanceof Element || node instanceof DocumentFragment) {
-                removeStarCells(node);
+                replaceStarIcons(node);
             }
         }
     }
 });
 
 observer.observe(document, { childList: true, subtree: true });
-removeStarCells(document);
+replaceStarIcons(document);

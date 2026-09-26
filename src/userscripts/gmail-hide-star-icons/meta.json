@@ -1,6 +1,6 @@
 {
     "name": "Gmail: Hide Star Icons",
-    "description": "Removes the star column from email rows in Gmail mailboxes.",
+    "description": "Replaces Gmail's star icons with favicons from each sender's domain.",
     "version": "2026.09.26.1",
     "license": "MIT",
     "author": "Raman Sinclair",
