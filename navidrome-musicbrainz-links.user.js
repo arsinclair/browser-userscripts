@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navidrome MusicBrainz Release Links
-// @description  Shows a MusicBrainz release's external URL relationships on Navidrome album pages.
-// @version      2026.09.06.6
+// @description  Shows MusicBrainz external relationships and matching CMS releases on Navidrome album pages.
+// @version      2026.09.28.1
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -10,7 +10,11 @@
 // @match        http://jrmnas.local:4533/app/*
 // @match        https://jrmnas.local:4533/app/*
 // @connect      musicbrainz.org
+// @connect      api.new-team.me
 // @grant        GM_xmlhttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @run-at       document-idle
 // @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
 // @tag          arsinclair
@@ -19,13 +23,18 @@
 (function () {
     'use strict';
 
-    const API_ROOT = "https://musicbrainz.org/ws/2/release";
+    const MUSICBRAINZ_API_ROOT = "https://musicbrainz.org/ws/2/release";
+    const CMS_API_ROOT = "https://api.new-team.me/api/v1/releases";
+    const CMS_ROOT = "https://cms.new-team.me";
+    const CMS_TOKEN_STORAGE_KEY = "new-team-cms-api-token";
+    const CMS_LOGO_URL = "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/cms-logo.svg";
     const BUSY_ERROR = "The MusicBrainz web server is currently busy. Please try again later.";
     const BUSY_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 16_000];
     const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v1:";
     const CONTAINER_CLASS = "mb-external-links";
     const MUSICBRAINZ_RELEASE_PATTERN = /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
     const inFlightRequests = new Map();
+    const cmsInFlightRequests = new Map();
     class MusicBrainzBusyError extends Error {}
     function cacheKey(releaseId) {
       return `${CACHE_PREFIX}${releaseId}`;
@@ -60,7 +69,7 @@
       }
     }
     function requestRelease(releaseId) {
-      const url = `${API_ROOT}/${releaseId}?fmt=json&inc=url-rels`;
+      const url = `${MUSICBRAINZ_API_ROOT}/${releaseId}?fmt=json&inc=url-rels`;
       return new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: "GET",
@@ -85,6 +94,92 @@
           ontimeout: () => reject(new Error("The MusicBrainz request timed out."))
         });
       });
+    }
+    function requestCmsRelease(releaseId, token) {
+      const url = new URL(CMS_API_ROOT);
+      url.searchParams.set("musicbrainzId", releaseId);
+      url.searchParams.set("limit", "1");
+      return new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+          method: "GET",
+          url: url.href,
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          responseType: "text",
+          timeout: 30_000,
+          onload: response => {
+            if (typeof response.responseText !== "string") {
+              reject(new Error("The CMS API returned an invalid response body."));
+              return;
+            }
+            resolve({
+              body: response.responseText,
+              status: response.status
+            });
+          },
+          onabort: () => reject(new Error("The CMS API request was aborted.")),
+          onerror: response => reject(new Error(`The CMS API request failed (HTTP ${response.status || "unknown"}).`)),
+          ontimeout: () => reject(new Error("The CMS API request timed out."))
+        });
+      });
+    }
+    function releaseRecords(value) {
+      if (Array.isArray(value)) {
+        return value.filter(item => typeof item === "object" && item !== null && !Array.isArray(item));
+      }
+      if (typeof value !== "object" || value === null) {
+        return [];
+      }
+      const record = value;
+      if (typeof record["id"] === "string" || typeof record["id"] === "number") {
+        return [record];
+      }
+      for (const key of ["data", "items", "results", "releases"]) {
+        const records = releaseRecords(record[key]);
+        if (records.length > 0) {
+          return records;
+        }
+      }
+      return [];
+    }
+    function parseCmsReleaseResponse(response) {
+      let parsed;
+      try {
+        parsed = JSON.parse(response.body);
+      } catch {
+        throw new Error(`The CMS API returned invalid JSON (HTTP ${response.status}).`);
+      }
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(`The CMS API returned HTTP ${response.status}.`);
+      }
+      const release = releaseRecords(parsed)[0];
+      const id = release?.["id"];
+      if (typeof id !== "string" && typeof id !== "number") {
+        return undefined;
+      }
+      return {
+        id: String(id)
+      };
+    }
+    function getCmsRelease(releaseId) {
+      const token = GM_getValue(CMS_TOKEN_STORAGE_KEY, "").trim();
+      if (!token) {
+        return Promise.resolve(undefined);
+      }
+      const activeRequest = cmsInFlightRequests.get(releaseId);
+      if (activeRequest) {
+        return activeRequest;
+      }
+      let request;
+      request = requestCmsRelease(releaseId, token).then(parseCmsReleaseResponse).finally(() => {
+        if (cmsInFlightRequests.get(releaseId) === request) {
+          cmsInFlightRequests.delete(releaseId);
+        }
+      });
+      cmsInFlightRequests.set(releaseId, request);
+      return request;
     }
     function parseReleaseResponse(response) {
       let parsed;
@@ -208,9 +303,30 @@
       link.append(image);
       return link;
     }
+    function createCmsLink(release) {
+      const link = document.createElement("a");
+      const image = document.createElement("img");
+      link.className = "mb-external-link cms-release-link";
+      link.href = `${CMS_ROOT}/releases/${encodeURIComponent(release.id)}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.title = "Open in New Team CMS";
+      link.setAttribute("aria-label", "Open release in New Team CMS");
+      image.src = CMS_LOGO_URL;
+      image.alt = "";
+      image.width = 18;
+      image.height = 18;
+      link.append(image);
+      return link;
+    }
     function renderRelations(container, release) {
       container.replaceChildren(...externalRelations(release).map(createRelationLink));
       container.removeAttribute("aria-busy");
+    }
+    function renderCmsRelease(container, release) {
+      if (release) {
+        container.append(createCmsLink(release));
+      }
     }
     function renderError(container, releaseId, error) {
       const retry = document.createElement("button");
@@ -231,6 +347,10 @@
       console.error("[Navidrome MusicBrainz Links] Could not load release relationships.", error);
     }
     async function loadIntoContainer(container, releaseId) {
+      const cmsReleasePromise = getCmsRelease(releaseId).catch(error => {
+        console.error("[Navidrome MusicBrainz Links] Could not look up the CMS release.", error);
+        return undefined;
+      });
       try {
         const release = await getRelease(releaseId);
         if (!container.isConnected || container.dataset["releaseId"] !== releaseId) {
@@ -242,6 +362,11 @@
         if (container.isConnected && container.dataset["releaseId"] === releaseId) {
           renderError(container, releaseId, error);
         }
+        return;
+      }
+      const cmsRelease = await cmsReleasePromise;
+      if (container.isConnected && container.dataset["releaseId"] === releaseId) {
+        renderCmsRelease(container, cmsRelease);
       }
     }
     function releaseIdFromLink(link) {
@@ -340,6 +465,19 @@
     `;
       document.head.append(style);
     }
+    function configureCmsToken() {
+      const token = window.prompt("Enter the New Team CMS API token. Leave blank to disable CMS lookups; cancel keeps the current token.", "");
+      if (token === null) {
+        return;
+      }
+      GM_setValue(CMS_TOKEN_STORAGE_KEY, token.trim());
+      cmsInFlightRequests.clear();
+      for (const container of document.querySelectorAll(`.${CONTAINER_CLASS}`)) {
+        container.remove();
+      }
+      scan();
+    }
+    GM_registerMenuCommand("Configure New Team CMS API token", configureCmsToken);
     function init() {
       addStyles();
       scan();
