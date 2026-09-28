@@ -14,6 +14,10 @@ interface ExternalRelation {
     url: URL;
 }
 
+interface CachedReleaseLinks {
+    urls: string[];
+}
+
 interface HttpResponse {
     body: string;
     status: number;
@@ -31,11 +35,11 @@ const CMS_LOGO_URL =
     "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/cms-logo.svg";
 const BUSY_ERROR = "The MusicBrainz web server is currently busy. Please try again later.";
 const BUSY_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 16_000] as const;
-const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v1:";
+const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v2:";
 const CONTAINER_CLASS = "mb-external-links";
 const MUSICBRAINZ_RELEASE_PATTERN =
     /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
-const inFlightRequests = new Map<string, Promise<MusicBrainzReleaseResponse>>();
+const inFlightRequests = new Map<string, Promise<ExternalRelation[]>>();
 const cmsInFlightRequests = new Map<string, Promise<CmsRelease | undefined>>();
 let cmsTokenSetupDismissed = false;
 
@@ -45,7 +49,7 @@ function cacheKey(releaseId: string): string {
     return `${CACHE_PREFIX}${releaseId}`;
 }
 
-function readCachedRelease(releaseId: string): MusicBrainzReleaseResponse | undefined {
+function readCachedLinks(releaseId: string): ExternalRelation[] | undefined {
     const key = cacheKey(releaseId);
 
     try {
@@ -60,7 +64,16 @@ function readCachedRelease(releaseId: string): MusicBrainzReleaseResponse | unde
             return undefined;
         }
 
-        return parsed as MusicBrainzReleaseResponse;
+        const cached = parsed as Partial<CachedReleaseLinks>;
+        if (!Array.isArray(cached.urls) || !cached.urls.every(url => typeof url === "string")) {
+            localStorage.removeItem(key);
+            return undefined;
+        }
+
+        return cached.urls.flatMap(resource => {
+            const url = externalUrl(resource);
+            return url ? [{ url }] : [];
+        });
     } catch {
         try {
             localStorage.removeItem(key);
@@ -71,11 +84,12 @@ function readCachedRelease(releaseId: string): MusicBrainzReleaseResponse | unde
     }
 }
 
-function cacheRelease(releaseId: string, release: MusicBrainzReleaseResponse): void {
+function cacheLinks(releaseId: string, relations: ExternalRelation[]): void {
     try {
-        localStorage.setItem(cacheKey(releaseId), JSON.stringify(release));
+        const cached: CachedReleaseLinks = { urls: relations.map(relation => relation.url.href) };
+        localStorage.setItem(cacheKey(releaseId), JSON.stringify(cached));
     } catch (error) {
-        console.warn("[Navidrome MusicBrainz Links] Could not cache the release response.", error);
+        console.warn("[Navidrome MusicBrainz Links] Could not cache the release links.", error);
     }
 }
 
@@ -268,8 +282,8 @@ function wait(milliseconds: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-async function fetchRelease(releaseId: string): Promise<MusicBrainzReleaseResponse> {
-    const cached = readCachedRelease(releaseId);
+async function fetchLinks(releaseId: string): Promise<ExternalRelation[]> {
+    const cached = readCachedLinks(releaseId);
     if (cached) {
         return cached;
     }
@@ -277,8 +291,9 @@ async function fetchRelease(releaseId: string): Promise<MusicBrainzReleaseRespon
     for (let attempt = 0; ; attempt += 1) {
         try {
             const release = parseReleaseResponse(await requestRelease(releaseId));
-            cacheRelease(releaseId, release);
-            return release;
+            const relations = externalRelations(release);
+            cacheLinks(releaseId, relations);
+            return relations;
         } catch (error) {
             const retryDelay = BUSY_RETRY_DELAYS_MS[attempt];
             if (!(error instanceof MusicBrainzBusyError) || retryDelay === undefined) {
@@ -293,13 +308,13 @@ async function fetchRelease(releaseId: string): Promise<MusicBrainzReleaseRespon
     }
 }
 
-function getRelease(releaseId: string): Promise<MusicBrainzReleaseResponse> {
+function getLinks(releaseId: string): Promise<ExternalRelation[]> {
     const activeRequest = inFlightRequests.get(releaseId);
     if (activeRequest) {
         return activeRequest;
     }
 
-    const request = fetchRelease(releaseId).finally(() => inFlightRequests.delete(releaseId));
+    const request = fetchLinks(releaseId).finally(() => inFlightRequests.delete(releaseId));
     inFlightRequests.set(releaseId, request);
     return request;
 }
@@ -309,13 +324,13 @@ function isMusicBrainzHost(hostname: string): boolean {
     return normalized === "musicbrainz.org" || normalized.endsWith(".musicbrainz.org");
 }
 
-function relationUrl(relation: MusicBrainzRelation): URL | undefined {
-    if (typeof relation.url?.resource !== "string") {
+function externalUrl(resource: unknown): URL | undefined {
+    if (typeof resource !== "string") {
         return undefined;
     }
 
     try {
-        const url = new URL(relation.url.resource);
+        const url = new URL(resource);
         if (
             (url.protocol !== "http:" && url.protocol !== "https:") ||
             isMusicBrainzHost(url.hostname)
@@ -326,6 +341,10 @@ function relationUrl(relation: MusicBrainzRelation): URL | undefined {
     } catch {
         return undefined;
     }
+}
+
+function relationUrl(relation: MusicBrainzRelation): URL | undefined {
+    return externalUrl(relation.url?.resource);
 }
 
 function externalRelations(release: MusicBrainzReleaseResponse): ExternalRelation[] {
@@ -405,8 +424,8 @@ function createCmsLink(release: CmsRelease): HTMLAnchorElement {
     return link;
 }
 
-function renderRelations(container: HTMLElement, release: MusicBrainzReleaseResponse): void {
-    container.replaceChildren(...externalRelations(release).map(createRelationLink));
+function renderRelations(container: HTMLElement, relations: ExternalRelation[]): void {
+    container.replaceChildren(...relations.map(createRelationLink));
     container.removeAttribute("aria-busy");
 }
 
@@ -443,13 +462,13 @@ async function loadIntoContainer(container: HTMLElement, releaseId: string): Pro
     });
 
     try {
-        const release = await getRelease(releaseId);
+        const relations = await getLinks(releaseId);
         if (!container.isConnected || container.dataset["releaseId"] !== releaseId) {
             return;
         }
 
         container.dataset["state"] = "ready";
-        renderRelations(container, release);
+        renderRelations(container, relations);
     } catch (error) {
         if (container.isConnected && container.dataset["releaseId"] === releaseId) {
             renderError(container, releaseId, error);
