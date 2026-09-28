@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navidrome MusicBrainz Release Links
 // @description  Shows MusicBrainz external relationships and matching CMS releases on Navidrome album pages.
-// @version      2026.09.28.1
+// @version      2026.09.28.2
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -14,7 +14,6 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @grant        GM_registerMenuCommand
 // @run-at       document-idle
 // @icon         https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg
 // @tag          arsinclair
@@ -35,6 +34,7 @@
     const MUSICBRAINZ_RELEASE_PATTERN = /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
     const inFlightRequests = new Map();
     const cmsInFlightRequests = new Map();
+    let cmsTokenSetupDismissed = false;
     class MusicBrainzBusyError extends Error {}
     function cacheKey(releaseId) {
       return `${CACHE_PREFIX}${releaseId}`;
@@ -163,8 +163,27 @@
         id: String(id)
       };
     }
+    function getCmsToken() {
+      const storedToken = GM_getValue(CMS_TOKEN_STORAGE_KEY, "").trim();
+      if (storedToken || cmsTokenSetupDismissed) {
+        return storedToken || undefined;
+      }
+      const token = window.prompt("Enter the New Team CMS API token:");
+      if (token === null) {
+        cmsTokenSetupDismissed = true;
+        return undefined;
+      }
+      const trimmedToken = token.trim();
+      if (!trimmedToken) {
+        window.alert("A New Team CMS API token is required. The token was not saved.");
+        cmsTokenSetupDismissed = true;
+        return undefined;
+      }
+      GM_setValue(CMS_TOKEN_STORAGE_KEY, trimmedToken);
+      return trimmedToken;
+    }
     function getCmsRelease(releaseId) {
-      const token = GM_getValue(CMS_TOKEN_STORAGE_KEY, "").trim();
+      const token = getCmsToken();
       if (!token) {
         return Promise.resolve(undefined);
       }
@@ -465,19 +484,6 @@
     `;
       document.head.append(style);
     }
-    function configureCmsToken() {
-      const token = window.prompt("Enter the New Team CMS API token. Leave blank to disable CMS lookups; cancel keeps the current token.", "");
-      if (token === null) {
-        return;
-      }
-      GM_setValue(CMS_TOKEN_STORAGE_KEY, token.trim());
-      cmsInFlightRequests.clear();
-      for (const container of document.querySelectorAll(`.${CONTAINER_CLASS}`)) {
-        container.remove();
-      }
-      scan();
-    }
-    GM_registerMenuCommand("Configure New Team CMS API token", configureCmsToken);
     function init() {
       addStyles();
       scan();
