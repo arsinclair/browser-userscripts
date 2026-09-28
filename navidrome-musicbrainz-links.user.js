@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Navidrome MusicBrainz Release Links
 // @description  Shows MusicBrainz external relationships and matching CMS releases on Navidrome album pages.
-// @version      2026.09.28.2
+// @version      2026.09.28.3
 // @license      MIT
 // @author       Raman Sinclair
 // @namespace    https://github.com/arsinclair/browser-userscripts
@@ -29,7 +29,7 @@
     const CMS_LOGO_URL = "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/cms-logo.svg";
     const BUSY_ERROR = "The MusicBrainz web server is currently busy. Please try again later.";
     const BUSY_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 16_000];
-    const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v1:";
+    const CACHE_PREFIX = "nt-navidrome-musicbrainz-release:v2:";
     const CONTAINER_CLASS = "mb-external-links";
     const MUSICBRAINZ_RELEASE_PATTERN = /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
     const inFlightRequests = new Map();
@@ -39,7 +39,7 @@
     function cacheKey(releaseId) {
       return `${CACHE_PREFIX}${releaseId}`;
     }
-    function readCachedRelease(releaseId) {
+    function readCachedLinks(releaseId) {
       const key = cacheKey(releaseId);
       try {
         const stored = localStorage.getItem(key);
@@ -51,7 +51,17 @@
           localStorage.removeItem(key);
           return undefined;
         }
-        return parsed;
+        const cached = parsed;
+        if (!Array.isArray(cached.urls) || !cached.urls.every(url => typeof url === "string")) {
+          localStorage.removeItem(key);
+          return undefined;
+        }
+        return cached.urls.flatMap(resource => {
+          const url = externalUrl(resource);
+          return url ? [{
+            url
+          }] : [];
+        });
       } catch {
         try {
           localStorage.removeItem(key);
@@ -61,11 +71,14 @@
         return undefined;
       }
     }
-    function cacheRelease(releaseId, release) {
+    function cacheLinks(releaseId, relations) {
       try {
-        localStorage.setItem(cacheKey(releaseId), JSON.stringify(release));
+        const cached = {
+          urls: relations.map(relation => relation.url.href)
+        };
+        localStorage.setItem(cacheKey(releaseId), JSON.stringify(cached));
       } catch (error) {
-        console.warn("[Navidrome MusicBrainz Links] Could not cache the release response.", error);
+        console.warn("[Navidrome MusicBrainz Links] Could not cache the release links.", error);
       }
     }
     function requestRelease(releaseId) {
@@ -226,16 +239,17 @@
     function wait(milliseconds) {
       return new Promise(resolve => setTimeout(resolve, milliseconds));
     }
-    async function fetchRelease(releaseId) {
-      const cached = readCachedRelease(releaseId);
+    async function fetchLinks(releaseId) {
+      const cached = readCachedLinks(releaseId);
       if (cached) {
         return cached;
       }
       for (let attempt = 0;; attempt += 1) {
         try {
           const release = parseReleaseResponse(await requestRelease(releaseId));
-          cacheRelease(releaseId, release);
-          return release;
+          const relations = externalRelations(release);
+          cacheLinks(releaseId, relations);
+          return relations;
         } catch (error) {
           const retryDelay = BUSY_RETRY_DELAYS_MS[attempt];
           if (!(error instanceof MusicBrainzBusyError) || retryDelay === undefined) {
@@ -246,12 +260,12 @@
         }
       }
     }
-    function getRelease(releaseId) {
+    function getLinks(releaseId) {
       const activeRequest = inFlightRequests.get(releaseId);
       if (activeRequest) {
         return activeRequest;
       }
-      const request = fetchRelease(releaseId).finally(() => inFlightRequests.delete(releaseId));
+      const request = fetchLinks(releaseId).finally(() => inFlightRequests.delete(releaseId));
       inFlightRequests.set(releaseId, request);
       return request;
     }
@@ -259,12 +273,12 @@
       const normalized = hostname.toLowerCase();
       return normalized === "musicbrainz.org" || normalized.endsWith(".musicbrainz.org");
     }
-    function relationUrl(relation) {
-      if (typeof relation.url?.resource !== "string") {
+    function externalUrl(resource) {
+      if (typeof resource !== "string") {
         return undefined;
       }
       try {
-        const url = new URL(relation.url.resource);
+        const url = new URL(resource);
         if (url.protocol !== "http:" && url.protocol !== "https:" || isMusicBrainzHost(url.hostname)) {
           return undefined;
         }
@@ -272,6 +286,9 @@
       } catch {
         return undefined;
       }
+    }
+    function relationUrl(relation) {
+      return externalUrl(relation.url?.resource);
     }
     function externalRelations(release) {
       if (!Array.isArray(release.relations)) {
@@ -338,8 +355,8 @@
       link.append(image);
       return link;
     }
-    function renderRelations(container, release) {
-      container.replaceChildren(...externalRelations(release).map(createRelationLink));
+    function renderRelations(container, relations) {
+      container.replaceChildren(...relations.map(createRelationLink));
       container.removeAttribute("aria-busy");
     }
     function renderCmsRelease(container, release) {
@@ -371,12 +388,12 @@
         return undefined;
       });
       try {
-        const release = await getRelease(releaseId);
+        const relations = await getLinks(releaseId);
         if (!container.isConnected || container.dataset["releaseId"] !== releaseId) {
           return;
         }
         container.dataset["state"] = "ready";
-        renderRelations(container, release);
+        renderRelations(container, relations);
       } catch (error) {
         if (container.isConnected && container.dataset["releaseId"] === releaseId) {
           renderError(container, releaseId, error);
