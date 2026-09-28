@@ -37,6 +37,7 @@ const MUSICBRAINZ_RELEASE_PATTERN =
     /^\/release\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/iu;
 const inFlightRequests = new Map<string, Promise<MusicBrainzReleaseResponse>>();
 const cmsInFlightRequests = new Map<string, Promise<CmsRelease | undefined>>();
+let cmsTokenSetupDismissed = false;
 
 class MusicBrainzBusyError extends Error {}
 
@@ -188,8 +189,31 @@ function parseCmsReleaseResponse(response: HttpResponse): CmsRelease | undefined
     return { id: String(id) };
 }
 
+function getCmsToken(): string | undefined {
+    const storedToken = GM_getValue(CMS_TOKEN_STORAGE_KEY, "").trim();
+    if (storedToken || cmsTokenSetupDismissed) {
+        return storedToken || undefined;
+    }
+
+    const token = window.prompt("Enter the New Team CMS API token:");
+    if (token === null) {
+        cmsTokenSetupDismissed = true;
+        return undefined;
+    }
+
+    const trimmedToken = token.trim();
+    if (!trimmedToken) {
+        window.alert("A New Team CMS API token is required. The token was not saved.");
+        cmsTokenSetupDismissed = true;
+        return undefined;
+    }
+
+    GM_setValue(CMS_TOKEN_STORAGE_KEY, trimmedToken);
+    return trimmedToken;
+}
+
 function getCmsRelease(releaseId: string): Promise<CmsRelease | undefined> {
-    const token = GM_getValue(CMS_TOKEN_STORAGE_KEY, "").trim();
+    const token = getCmsToken();
     if (!token) {
         return Promise.resolve(undefined);
     }
@@ -544,25 +568,6 @@ function addStyles(): void {
     `;
     document.head.append(style);
 }
-
-function configureCmsToken(): void {
-    const token = window.prompt(
-        "Enter the New Team CMS API token. Leave blank to disable CMS lookups; cancel keeps the current token.",
-        ""
-    );
-    if (token === null) {
-        return;
-    }
-
-    GM_setValue(CMS_TOKEN_STORAGE_KEY, token.trim());
-    cmsInFlightRequests.clear();
-    for (const container of document.querySelectorAll<HTMLElement>(`.${CONTAINER_CLASS}`)) {
-        container.remove();
-    }
-    scan();
-}
-
-GM_registerMenuCommand("Configure New Team CMS API token", configureCmsToken);
 
 function init(): void {
     addStyles();

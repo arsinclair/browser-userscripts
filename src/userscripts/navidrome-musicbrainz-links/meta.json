@@ -9,7 +9,7 @@
     "updateURL": "https://github.com/arsinclair/browser-userscripts/raw/dist/navidrome-musicbrainz-links.user.js",
     "match": ["http://jrmnas.local:4533/app/*", "https://jrmnas.local:4533/app/*"],
     "connect": ["musicbrainz.org", "api.new-team.me"],
-    "grant": ["GM_xmlhttpRequest", "GM_getValue", "GM_setValue", "GM_registerMenuCommand"],
+    "grant": ["GM_xmlhttpRequest", "GM_getValue", "GM_setValue"],
     "runAt": "document-idle",
     "icon": "https://raw.githubusercontent.com/arsinclair/browser-userscripts/master/src/assets/icon.jpg",
     "tag": ["arsinclair"]
