@@ -1,7 +1,7 @@
 {
     "name": "Navidrome MusicBrainz Release Links",
     "description": "Shows MusicBrainz external relationships and matching CMS releases on Navidrome album pages.",
-    "version": "2026.09.06.6",
+    "version": "2026.09.28.1",
     "author": "Raman Sinclair",
     "license": "MIT",
     "namespace": "https://github.com/arsinclair/browser-userscripts",
