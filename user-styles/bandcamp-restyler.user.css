@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name         Bandcamp Restyler
 @description  Adds polished borders, labels, and typography to Bandcamp purchase, album, lyrics, credits, and bio sections.
-@version      1.2.0
+@version      1.2.1
 @license      MIT
 @author       Raman Sinclair
 @namespace    https://github.com/arsinclair/browser-userscripts
@@ -19,6 +19,11 @@
         --bc-restyler-gradient-start: rgba(255, 255, 255, 0.14);
         --bc-restyler-gradient-end: rgba(255, 255, 255, 0.06);
         --bc-restyler-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #report-account-vm,
+    p:has(> a[href="https://bandcamp.com/help/downloading?from=tralbum_downloading"]) {
+        display: none;
     }
 
     /* Highlight Sections */
