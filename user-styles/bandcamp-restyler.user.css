@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name         Bandcamp Restyler
-@description  Adds polished borders, labels, and typography to Bandcamp purchase, album, credits, and bio sections.
-@version      1.1.0
+@description  Adds polished borders, labels, and typography to Bandcamp purchase, album, lyrics, credits, and bio sections.
+@version      1.2.0
 @license      MIT
 @author       Raman Sinclair
 @namespace    https://github.com/arsinclair/browser-userscripts
@@ -25,6 +25,7 @@
     .tralbumCommands li.buyItem,
     .tralbum-credits,
     .tralbum-about,
+    .tralbumData.lyricsText,
     p#bio-text {
         font-family: 'Open Sans', Arial, system-ui, sans-serif;
         border: 1px solid var(--bc-restyler-border-color, #f3f3f354);
@@ -40,17 +41,20 @@
 
     .tralbumCommands li.buyItem,
     .tralbum-about,
-    .tralbum-credits {
+    .tralbum-credits,
+    .tralbumData.lyricsText {
         padding: 6px;
     }
 
     .tralbum-about,
-    .tralbum-credits {
+    .tralbum-credits,
+    .tralbumData.lyricsText {
         position: relative;
     }
 
     .tralbum-about::before,
     .tralbum-credits::before,
+    .tralbumData.lyricsText::before,
     p#bio-text::before {
         display: block;
         font-size: 11px;
@@ -72,6 +76,10 @@
 
     .tralbum-credits::before {
         content: "Credits";
+    }
+
+    .tralbumData.lyricsText::before {
+        content: "Lyrics";
     }
 
     p#bio-text::before {

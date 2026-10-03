@@ -11,7 +11,7 @@ Replaces the star column in Gmail mailboxes with favicons resolved from each sen
 
 ## <a name="bandcamp_restyler"></a> Bandcamp Restyler
 
-Adds polished borders, labels, and typography to Bandcamp purchase, album, credits, and bio sections.
+Adds polished borders, labels, and typography to Bandcamp purchase, album, lyrics, credits, and bio sections.
 
 [![Source](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-source.svg)](https://github.com/arsinclair/browser-userscripts/blob/master/user-styles/bandcamp-restyler.user.css)
 [![Install](https://raw.githubusercontent.com/murdos/musicbrainz-userscripts/master/assets/buttons/button-install.svg)](https://github.com/arsinclair/browser-userscripts/raw/master/user-styles/bandcamp-restyler.user.css)
